@@ -1,0 +1,517 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      /* 引入一个免费的数字LED风格字体 */
+      @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap");
+
+      /* --- 基础与重置 --- */
+      .darkbramble-player-container * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+          "Segoe UI Symbol";
+        color: #fff;
+      }
+
+      body {
+        /* 确保 body 不会因为默认 margin 导致布局偏差 */
+        margin: 0;
+        padding: 0;
+        /* 给一点微小的 padding 防止完全贴边 */
+        padding-bottom: 2px;
+      }
+
+      /* --- 主播放器容器 --- */
+      .darkbramble-player-container {
+        width: 100%;
+        max-width: 320px;
+        /* --- 核心修复：将 margin: auto 改为明确的上下边距 (24px) --- */
+        /* 这样能给底部阴影留出足够的安全空间，防止被安卓WebView切掉 */
+        margin: 24px auto;
+        padding: 12px 15px;
+        background: linear-gradient(145deg, #ffdae9, #fce8f0);
+        border-radius: 28px;
+        box-shadow:
+          4px 4px 10px rgba(220, 140, 170, 0.3),
+          -3px -3px 7px rgba(255, 255, 255, 0.6),
+          inset 0 0 10px rgba(255, 255, 255, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        overflow: hidden;
+        user-select: none;
+
+        opacity: 0;
+        transform: scale(0.95);
+        transition:
+          opacity 0.4s ease-in-out,
+          transform 0.4s ease-in-out;
+      }
+
+      .darkbramble-player-container.loaded {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      /* --- LED 屏幕 --- */
+      .player-screen {
+        background-color: #d8f1ff;
+        border-radius: 12px;
+        padding: 12px;
+        box-shadow:
+          inset 2px 2px 5px rgba(0, 0, 0, 0.2),
+          inset -2px -2px 5px rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        margin-bottom: 12px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        min-height: 81px;
+      }
+
+      .album-art {
+        width: 55px;
+        height: 55px;
+        border-radius: 8px;
+        overflow: hidden;
+        flex-shrink: 0;
+        background-color: #b0d9f0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .album-art img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .screen-content {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .song-info .title {
+        font-family: "Orbitron", sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1a3a5a;
+        text-shadow: 0 0 2px rgba(137, 196, 244, 0.7);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .song-info .artist {
+        font-family: "Orbitron", sans-serif;
+        font-size: 0.75rem;
+        color: #3b6b9a;
+        margin-top: 2px;
+        margin-bottom: 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* --- 进度条 --- */
+      .progress-bar-container {
+        width: 100%;
+        height: 6px;
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+        cursor: pointer;
+        overflow: hidden;
+      }
+      .progress-bar-fill {
+        height: 100%;
+        width: 0%;
+        background: #f8dae6;
+        border-radius: 3px;
+        transition: width 0.1s linear;
+      }
+
+      .time-display {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.65rem;
+        padding-top: 3px;
+        font-weight: 600;
+      }
+
+      .time-display span {
+        color: #3b6b9a;
+      }
+
+      /* --- 控制按钮 --- */
+      .controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .control-btn {
+        background: linear-gradient(145deg, #fef4f8, #f5d4e2);
+        border: none;
+        border-radius: 50%;
+        width: 46px;
+        height: 46px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        box-shadow:
+          3px 3px 8px rgba(220, 140, 170, 0.25),
+          -3px -3px 8px rgba(255, 255, 255, 0.9);
+        transition: all 0.15s ease-out;
+      }
+
+      .control-btn:active {
+        box-shadow:
+          inset 2px 2px 5px rgba(220, 140, 170, 0.35),
+          inset -2px -2px 5px rgba(255, 255, 255, 0.8);
+        transform: scale(0.95);
+      }
+
+      .control-btn.small {
+        width: 36px;
+        height: 36px;
+      }
+
+      .control-btn svg {
+        width: 55%;
+        height: 55%;
+        fill: #e85a90;
+        pointer-events: none;
+      }
+
+      /* --- 音量控制 --- */
+      .volume-control {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 12px;
+        gap: 8px;
+      }
+      .volume-control svg {
+        width: 18px;
+        height: 18px;
+        fill: rgba(232, 90, 144, 0.7);
+        flex-shrink: 0;
+      }
+      #volume-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        max-width: 150px;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 3px;
+        outline: none;
+        transition: opacity 0.2s;
+      }
+
+      /* --- 爱心滑块 --- */
+      #volume-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+        outline: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff9cc7'%3e%3cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3e%3c/svg%3e");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        cursor: pointer;
+        transform: translateY(-1px);
+      }
+      #volume-slider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+        outline: none;
+        border-radius: 0;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff9cc7'%3e%3cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3e%3c/svg%3e");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        cursor: pointer;
+      }
+
+      /* --- 错误显示专用样式 --- */
+      .error-display {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        text-align: left;
+      }
+      .error-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #d00000;
+        margin-bottom: 6px;
+      }
+      .error-message {
+        font-size: 0.8rem;
+        color: #555;
+        line-height: 1.5;
+        white-space: normal;
+      }
+
+      /* --- 错误状态下的视图切换 --- */
+      .darkbramble-player-container.has-error .album-art,
+      .darkbramble-player-container.has-error .screen-content,
+      .darkbramble-player-container.has-error .controls,
+      .darkbramble-player-container.has-error .volume-control {
+        display: none;
+      }
+      .darkbramble-player-container.has-error .error-display {
+        display: flex;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="darkbramble-player-container" id="player-container">
+      <div class="player-screen">
+        <!-- 正常UI部分 -->
+        <div class="album-art" id="album-art">
+          <img src="" alt="Album Art" />
+        </div>
+        <div class="screen-content">
+          <div class="song-info">
+            <div class="title" id="song-title">正在连接...</div>
+            <div class="artist" id="song-artist">请稍候</div>
+          </div>
+          <div class="progress-section">
+            <div class="progress-bar-container" id="progress-bar-container">
+              <div class="progress-bar-fill" id="progress-bar-fill"></div>
+            </div>
+            <div class="time-display">
+              <span id="current-time">0:00</span>
+              <span id="total-duration">0:00</span>
+            </div>
+          </div>
+        </div>
+        <!-- 错误显示专用容器 -->
+        <div class="error-display">
+          <div class="error-title" id="error-title"></div>
+          <div class="error-message" id="error-message"></div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button
+          class="control-btn small"
+          id="mode-btn"
+          aria-label="切换播放模式"
+        ></button>
+        <button class="control-btn small" id="prev-btn" aria-label="上一首">
+          <svg viewBox="0 0 24 24">
+            <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"></path>
+          </svg>
+        </button>
+        <button
+          class="control-btn"
+          id="play-pause-btn"
+          aria-label="播放/暂停"
+        ></button>
+        <button class="control-btn small" id="next-btn" aria-label="下一首">
+          <svg viewBox="0 0 24 24">
+            <path d="M16 6h2v12h-2zm-4.5 6l-8.5 6V6z"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="volume-control">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"
+          ></path>
+        </svg>
+        <input type="range" id="volume-slider" min="0" max="100" value="80" />
+      </div>
+    </div>
+
+    <script>
+      // --- DOM 元素缓存 ---
+      const playerContainer = document.getElementById("player-container");
+      const songTitleEl = document.getElementById("song-title");
+      const songArtistEl = document.getElementById("song-artist");
+      const albumArtContainer = document.getElementById("album-art");
+      const albumArtImg = albumArtContainer.querySelector("img");
+      const progressBarContainer = document.getElementById(
+        "progress-bar-container",
+      );
+      const progressBarFill = document.getElementById("progress-bar-fill");
+      const currentTimeEl = document.getElementById("current-time");
+      const totalDurationEl = document.getElementById("total-duration");
+      const prevBtn = document.getElementById("prev-btn");
+      const playPauseBtn = document.getElementById("play-pause-btn");
+      const nextBtn = document.getElementById("next-btn");
+      const modeBtn = document.getElementById("mode-btn");
+      const volumeSlider = document.getElementById("volume-slider");
+
+      // 缓存错误信息元素
+      const errorTitleEl = document.getElementById("error-title");
+      const errorMessageEl = document.getElementById("error-message");
+
+      // --- SVG 图标 ---
+      const playIcon = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>`;
+      const pauseIcon = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>`;
+      const listLoopIcon = `<svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"></path></svg>`;
+      const singleLoopIcon = `<svg viewBox="0 0 24 24" style="transform: scale(1.1);"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"></path><text x="11" y="16.5" font-size="9" font-weight="bold" fill="#e85a90" text-anchor="middle">1</text></svg>`;
+      const randomIcon = `<svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"></path></svg>`;
+
+      function formatTime(s) {
+        return isNaN(s) || s < 0
+          ? "0:00"
+          : `${Math.floor(s / 60)}:${Math.floor(s % 60)
+              .toString()
+              .padStart(2, "0")}`;
+      }
+
+      function updateUI(state) {
+        if (state.currentItem) {
+          songTitleEl.textContent = state.currentItem.title || "未知歌曲";
+          songArtistEl.textContent = state.currentItem.artist || "未知艺术家";
+
+          if (state.currentItem.cover) {
+            albumArtImg.src = state.currentItem.cover;
+            albumArtContainer.style.display = "block";
+          } else {
+            albumArtContainer.style.display = "none";
+          }
+        } else {
+          songTitleEl.textContent = "歌单为空";
+          songArtistEl.textContent = "请添加歌曲";
+          albumArtContainer.style.display = "none";
+        }
+
+        playPauseBtn.innerHTML = state.isPlaying ? pauseIcon : playIcon;
+        volumeSlider.value = state.masterVolume * 100;
+        updateModeIcon(state.playbackMode);
+
+        if (!playerContainer.classList.contains("loaded"))
+          playerContainer.classList.add("loaded");
+      }
+
+      function updateTime(timePayload) {
+        const { currentTime, duration } = timePayload;
+        currentTimeEl.textContent = formatTime(currentTime);
+        totalDurationEl.textContent = formatTime(duration);
+        progressBarFill.style.width =
+          duration > 0 ? `${(currentTime / duration) * 100}%` : "0%";
+      }
+
+      function updateModeIcon(mode) {
+        let icon;
+        switch (mode) {
+          case "single":
+            icon = singleLoopIcon;
+            break;
+          case "random":
+            icon = randomIcon;
+            break;
+          default:
+            icon = listLoopIcon;
+        }
+        modeBtn.innerHTML = icon;
+      }
+
+      function setupEventListeners(api) {
+        playPauseBtn.addEventListener("click", () => api.togglePlayPause());
+        nextBtn.addEventListener("click", () => api.playNext());
+        prevBtn.addEventListener("click", () => api.playPrev());
+
+        modeBtn.addEventListener("click", () => {
+          const currentMode = api.getCurrentState().playbackMode;
+          const modes = ["list", "single", "random"];
+          const nextIndex = (modes.indexOf(currentMode) + 1) % modes.length;
+          api.setPlaybackMode(modes[nextIndex]);
+        });
+
+        progressBarContainer.addEventListener("click", (e) => {
+          const rect = progressBarContainer.getBoundingClientRect();
+          api.seekTo((e.clientX - rect.left) / rect.width);
+        });
+
+        volumeSlider.addEventListener("input", () =>
+          api.setLiveVolume(volumeSlider.value / 100),
+        );
+        volumeSlider.addEventListener("change", () =>
+          api.persistVolumeAndBroadcast(volumeSlider.value / 100),
+        );
+      }
+
+      function _findApiObject(timeoutMs = 10000) {
+        return new Promise((resolve, reject) => {
+          const startTime = Date.now();
+          const interval = setInterval(() => {
+            if (
+              typeof top.musicPlayerAPI === "object" &&
+              top.musicPlayerAPI !== null
+            ) {
+              clearInterval(interval);
+              resolve(top.musicPlayerAPI);
+            } else if (Date.now() - startTime > timeoutMs) {
+              clearInterval(interval);
+              reject(
+                new Error(
+                  "连接后台脚本失败。请确认角色卡的脚本开关已打开。若已打开请刷新页面重试。",
+                ),
+              );
+            }
+          }, 250);
+        });
+      }
+
+      async function initializePlayer() {
+        try {
+          const api = await _findApiObject();
+
+          await Promise.race([
+            api.requestInitialization(),
+            new Promise((_, reject) =>
+              setTimeout(
+                () =>
+                  reject(
+                    new Error(
+                      "后台脚本初始化超时。如果这是您第一次加载角色卡，请尝试刷新页面。",
+                    ),
+                  ),
+                10000,
+              ),
+            ),
+          ]);
+
+          const initialState = api.getCurrentState();
+          updateUI(initialState);
+          updateTime({ currentTime: 0, duration: 0 });
+
+          api.onFullStateUpdate(updateUI);
+          api.onTimeUpdate(updateTime);
+
+          setupEventListeners(api);
+        } catch (error) {
+          console.error("播放器初始化失败:", error);
+          playerContainer.classList.add("has-error");
+          errorTitleEl.textContent = "播放器加载失败";
+          errorMessageEl.textContent = error.message;
+          playerContainer.classList.add("loaded");
+        }
+      }
+
+      initializePlayer();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,82 @@
+<head>
+  <style>
+    .hybrid-demo {
+      background: rgba(15, 15, 15, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 25px;
+      border-radius: 16px;
+      color: #f0f0f0;
+      font-family: "Segoe UI", sans-serif;
+      max-width: 320px;
+      margin: 20px auto;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+    .hybrid-demo .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .hybrid-demo .label {
+      font-size: 0.85rem;
+      opacity: 0.6;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .hybrid-demo .value {
+      font-size: 1.8rem;
+      font-weight: 300;
+    }
+    .hybrid-demo .bar-container {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .hybrid-demo .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .hybrid-demo .title {
+      text-align: center;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="hybrid-demo">
+    <div class="title">混合型示例</div>
+    <div class="status-row">
+      <span class="label">生命值</span>
+      <span class="value" id="hp-value">100</span>
+    </div>
+    <div class="bar-container">
+      <div class="bar-fill" id="hp-bar" style="width: 100%"></div>
+    </div>
+    <div class="status-row" style="margin-top: 20px">
+      <span class="label">魔力值</span>
+      <span class="value" id="mp-value">50</span>
+    </div>
+    <div class="bar-container">
+      <div class="bar-fill" id="mp-bar" style="width: 50%"></div>
+    </div>
+  </div>
+
+  <script>
+    // 模拟数值变化
+    setInterval(() => {
+      const hp = Math.floor(Math.random() * 100) + 1;
+      const mp = Math.floor(Math.random() * 100) + 1;
+      document.getElementById("hp-value").textContent = hp;
+      document.getElementById("hp-bar").style.width = hp + "%";
+      document.getElementById("mp-value").textContent = mp;
+      document.getElementById("mp-bar").style.width = mp + "%";
+    }, 2000);
+  </script>
+</body>
