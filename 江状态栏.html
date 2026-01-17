@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    /* === 字体引入 === */
+    @import url("https://fontsapi.zeoseven.com/437/main/result.css"); /* 汇文明朝体 */
+    @import url("https://fontsapi.zeoseven.com/157/main/result.css"); /* 平方乔木体 */
+
+    /* === CSS 变量系统 === */
+    :root {
+        --c-main-title: #5f7081;   /* 日间: 灰蓝 */
+        --c-sub-title: #333333;    /* 日间: 灰黑 */
+        --c-meta: #888888;
+        --c-voice-text: #1a1a1a;
+        --c-quote-sym: #dcdcdc;
+        --c-forum-name: #222222;
+        --c-forum-text: #555555;
+        --c-border: #f2f2f2;
+        --c-highlight: #000000;
+        --img-filter: none;
+    }
+
+    /* 夜间模式: 高亮适配 */
+    [data-theme="dark"] {
+        --c-main-title: #cce0f0;   /* 夜间: 亮灰蓝 */
+        --c-sub-title: #ffffff;    /* 夜间: 纯白 */
+        --c-meta: #bbbbbb;
+        --c-voice-text: #ffffff;
+        --c-quote-sym: #666666;
+        --c-forum-name: #ffffff;
+        --c-forum-text: #e0e0e0;
+        --c-border: #555555;
+        --c-highlight: #ffffff;
+        --img-filter: brightness(0.85) contrast(1.1);
+    }
+
+    /* === 全局容器 === */
+    .mag-container {
+        width: 100%;
+        max-width: 600px;
+        margin: 10px auto;
+        font-family: "Songti SC", "Noto Serif SC", serif;
+        position: relative;
+        transition: color 0.5s ease;
+    }
+
+    /* === 模式切换开关 === */
+    .mode-switch {
+        position: absolute;
+        top: 25px; /* 顶部对齐 */
+        right: 0;
+        font-family: Arial, sans-serif;
+        font-size: 8px;
+        letter-spacing: 2px;
+        cursor: pointer;
+        color: var(--c-meta);
+        border-bottom: 1px solid transparent;
+        transition: all 0.3s;
+        z-index: 10;
+        user-select: none;
+        padding-bottom: 2px;
+        line-height: 1;
+    }
+    .mode-switch:hover {
+        color: var(--c-sub-title);
+        border-bottom-color: var(--c-sub-title);
+    }
+
+    .mag-container details summary { list-style: none; cursor: pointer; outline: none; }
+    .mag-container details summary::-webkit-details-marker { display: none; }
+
+    /* === 摘要区域 === */
+    .summary-wrapper {
+        padding: 25px 0 20px 0;
+        text-align: left;
+        position: relative;
+    }
+    .mag-vol {
+        font-family: Arial, sans-serif;
+        font-size: 9px;
+        font-weight: bold;
+        letter-spacing: 3px;
+        display: block;
+        margin-bottom: 25px;
+        color: var(--c-meta);
+        transition: color 0.5s;
+        line-height: 1;
+    }
+
+    .quote-main {
+        font-family: "Huiwen-MinchoGBK", serif;
+        font-size: 34px;
+        line-height: 1.25;
+        margin: 0 0 12px 0;
+        letter-spacing: -1px;
+        font-weight: normal;
+        color: var(--c-main-title);
+        transition: color 0.5s;
+    }
+
+    .quote-sub {
+        font-family: "Huiwen-MinchoGBK", serif;
+        font-size: 15px;
+        line-height: 1.8;
+        margin-left: 2px;
+        color: var(--c-sub-title);
+        display: block; /* 块级元素，让内容自然换行 */
+        transition: color 0.5s;
+        margin-top: 10px; /* 与主标题拉开一点距离 */
+        white-space: pre-wrap; /* 保留输入时的必要换行（如果有），平时自然折行 */
+    }
+
+    .book-source {
+        font-family: "Huiwen-MinchoGBK", serif;
+        display: block;
+        margin-top: 35px;
+        font-size: 12px;
+        text-align: right;
+        color: var(--c-meta);
+        transition: color 0.5s;
+    }
+
+    /* === 展开内容区 === */
+    .expanded-layout { padding: 40px 10px 20px 10px; animation: fadeIn 0.8s ease; clear: both; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* 心声模块 */
+    .monologue-section { margin-bottom: 60px; text-align: center; }
+    .mood-image {
+        width: 100%; height: auto; display: block;
+        margin-bottom: 35px; border-radius: 4px;
+        filter: var(--img-filter);
+        transition: filter 0.5s;
+    }
+    .voice-box { position: relative; padding: 0 30px; }
+    .quote-symbol {
+        font-family: "Times New Roman", serif;
+        font-size: 60px;
+        color: var(--c-quote-sym);
+        position: absolute; line-height: 1;
+        transition: color 0.5s;
+    }
+    .qs-left { top: -20px; left: 0; }
+    .qs-right { bottom: -30px; right: 0; }
+    .char-voice {
+        font-family: "PING FANG SHAO HUA", serif;
+        font-size: 19px; line-height: 1.6;
+        color: var(--c-voice-text);
+        position: relative; z-index: 2; min-height: 80px;
+        text-align: justify;
+        transition: color 0.5s;
+    }
+    .typing-cursor {
+        display: inline-block; width: 1px; height: 1.2em;
+        background-color: var(--c-meta);
+        animation: blink 0.8s infinite;
+        vertical-align: text-bottom; margin-left: 1px;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    .monologue-tag {
+        font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
+        color: var(--c-meta); opacity: 0.8;
+        margin-top: 25px; display: block; font-family: sans-serif;
+    }
+
+    /* 茶话会 */
+    .tea-party { border-top: 1px dotted var(--c-meta); padding-top: 30px; transition: border-color 0.5s; }
+    .tea-summary {
+        text-align: center; font-size: 10px; letter-spacing: 3px;
+        color: var(--c-meta); font-family: sans-serif;
+        padding: 8px 0; transition: color 0.3s;
+    }
+    .tea-summary:hover { color: var(--c-sub-title); }
+    .tea-header {
+        width: 100%; height: auto; display: block; margin: 25px 0;
+        border-radius: 4px; filter: var(--img-filter);
+        transition: filter 0.5s;
+    }
+
+    .forum-row {
+        display: flex; align-items: flex-start; padding: 14px 0;
+        border-bottom: 1px solid var(--c-border);
+        font-size: 13px; line-height: 1.7;
+        opacity: 0; transform-origin: top; transform: scaleY(0.8); filter: blur(4px);
+        transition:
+            opacity 0.9s ease-out,
+            transform 0.8s cubic-bezier(0.19, 1, 0.22, 1),
+            filter 0.8s ease-out,
+            border-color 0.5s;
+    }
+    .forum-row.visible { opacity: 1; transform: scaleY(1); filter: blur(0); }
+
+    .f-name {
+        width: 85px; flex-shrink: 0;
+        font-weight: bold; color: var(--c-forum-name);
+        font-size: 12px; padding-right: 12px;
+        box-sizing: border-box; text-align: right;
+        border-right: 1px solid var(--c-border);
+        margin-right: 14px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        transition: color 0.5s, border-color 0.5s;
+    }
+    .f-text { flex-grow: 1; color: var(--c-forum-text); text-align: justify; transition: color 0.5s; }
+    .highlight .f-name { color: var(--c-highlight); border-right-color: var(--c-highlight); }
+    .highlight .f-text { color: var(--c-highlight); font-weight: 500;}
+
+</style>
+</head>
+<body>
+
+<div class="mag-container" id="mag-container">
+    <div class="mode-switch" id="theme-toggle" title="Switch Theme">LIGHT ∕ DARK</div>
+
+    <details id="main-details">
+        <summary class="summary-wrapper">
+            <span class="mag-vol" id="mag-vol-text">VOL.03 / </span>
+            <div class="quote-main" id="quote-main-text"></div>
+            <div class="quote-sub" id="quote-sub-text"></div>
+            <span class="book-source" id="book-source-text"></span>
+        </summary>
+        <div class="expanded-layout">
+            <div class="monologue-section">
+                <img src="https://i.postimg.cc/g2xwDjmt/IMG-20251204-125523.jpg" class="mood-image" alt="Mood">
+                <div class="voice-box">
+                    <span class="quote-symbol qs-left">“</span>
+                    <div class="char-voice"><span id="char-voice-text"></span><span class="typing-cursor" id="typing-cursor"></span></div>
+                    <span class="quote-symbol qs-right">”</span>
+                    <span class="monologue-tag" id="monologue-tag-text"></span>
+                </div>
+            </div>
+            <div class="tea-party">
+                <details id="tea-party-details">
+                    <summary class="tea-summary">+ 点击展开 动物茶话会 / ANIMAL FORUM</summary>
+                    <div style="padding-top: 10px;">
+                        <img src="https://i.postimg.cc/VsHmFRvY/IMG-20251204-125936.jpg" class="tea-header" alt="Tea">
+                        <div id="forum-list" style="padding: 0 5px;"></div>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </details>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Theme Logic
+    const container = document.getElementById('mag-container');
+    const toggleBtn = document.getElementById('theme-toggle');
+    const storageKey = 'mag-ui-theme-pref';
+
+    function applyTheme(isDark) {
+        if (isDark) {
+            container.setAttribute('data-theme', 'dark');
+            toggleBtn.innerText = "DARK MODE";
+        } else {
+            container.removeAttribute('data-theme');
+            toggleBtn.innerText = "LIGHT MODE";
+        }
+    }
+    const savedTheme = localStorage.getItem(storageKey);
+    if (savedTheme === 'dark') applyTheme(true);
+
+    toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isDark = container.hasAttribute('data-theme');
+        applyTheme(!isDark);
+        localStorage.setItem(storageKey, isDark ? 'light' : 'dark');
+    });
+
+    // 2. Content Logic
+    const quoteRaw = `$1`;
+    const bookTitle = `$2`;
+    const innerVoice = `$3`;
+    const charNamePinyin = `$4`;
+    const teaPartyRaw = `$5`;
+
+    // --- 文摘 (修改重点) ---
+    const cleanQuote = quoteRaw.replace(/[\r\n]/g, '').trim();
+
+    // 逻辑：只寻找第一个逗号或句号
+    // match[1] = 第一句(含标点), match[2] = 剩余所有文本
+    const match = cleanQuote.match(/^([^，。]+[，。])(.*)$/);
+
+    if (match) {
+        document.getElementById('quote-main-text').innerText = match[1].trim();
+        // 剩下的部分如果不为空，放入 div 中，不再切割
+        if (match[2] && match[2].trim()) {
+             // 放入纯文本，保留其原有的连续性
+             const subDiv = document.createElement('div');
+             subDiv.innerText = match[2].trim();
+             document.getElementById('quote-sub-text').innerHTML = ''; // 清空
+             document.getElementById('quote-sub-text').appendChild(subDiv);
+        }
+    } else {
+        // 如果连一个标点都没有，全部作为主标题 (或者你可以决定全部做副标题，这里按全部主标题处理)
+        document.getElementById('quote-main-text').innerText = cleanQuote;
+    }
+
+    document.getElementById('book-source-text').innerText = `——《${bookTitle.trim()}》`;
+    document.getElementById('mag-vol-text').innerText += charNamePinyin.trim().toUpperCase();
+    document.getElementById('monologue-tag-text').innerText = `${charNamePinyin.trim()} / Inner Voice`;
+
+    // --- 茶话会 ---
+    const forumList = document.getElementById('forum-list');
+    const comments = teaPartyRaw.trim().split(/\r?\n/).filter(line => line.trim() !== '');
+
+    comments.forEach(comment => {
+        const line = comment.trim();
+        const separatorIndex = line.search(/[|：]/);
+
+        if (separatorIndex !== -1) {
+            let namePart = line.substring(0, separatorIndex).trim();
+            const text = line.substring(separatorIndex + 1).trim();
+            let isHighlight = false;
+            if (namePart.startsWith('*')) {
+                isHighlight = true;
+                namePart = namePart.substring(1).trim();
+            }
+
+            const row = document.createElement('div');
+            row.className = 'forum-row';
+            if (isHighlight) row.classList.add('highlight');
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'f-name';
+            nameSpan.innerText = namePart;
+            const textSpan = document.createElement('span');
+            textSpan.className = 'f-text';
+            textSpan.innerText = text;
+            row.appendChild(nameSpan);
+            row.appendChild(textSpan);
+            forumList.appendChild(row);
+        }
+    });
+
+    // 3. Animation Logic
+    const mainDetails = document.getElementById('main-details');
+    const voiceTextElement = document.getElementById('char-voice-text');
+    const cursorElement = document.getElementById('typing-cursor');
+    let typewriterTimeout;
+
+    function realisticTypewriter(textElement, cursor, text, index) {
+        if (index < text.length) {
+            textElement.innerHTML += text.charAt(index);
+            const char = text.charAt(index);
+            let delay = Math.random() * 100 + 40;
+            if ('，。…'.includes(char)) delay += 300;
+            typewriterTimeout = setTimeout(() => realisticTypewriter(textElement, cursor, text, index + 1), delay);
+        } else {
+            cursor.style.display = 'none';
+        }
+    }
+
+    mainDetails.addEventListener('toggle', function() {
+        if (mainDetails.open) {
+            voiceTextElement.innerHTML = '';
+            cursorElement.style.display = 'inline-block';
+            clearTimeout(typewriterTimeout);
+            realisticTypewriter(voiceTextElement, cursorElement, innerVoice.trim(), 0);
+        } else {
+            clearTimeout(typewriterTimeout);
+        }
+    });
+
+    const teaPartyDetails = document.getElementById('tea-party-details');
+    let revealTimeouts = [];
+
+    teaPartyDetails.addEventListener('toggle', function() {
+        const forumRows = document.querySelectorAll('#forum-list .forum-row');
+        revealTimeouts.forEach(t => clearTimeout(t));
+        revealTimeouts = [];
+        if (teaPartyDetails.open) {
+            forumRows.forEach((row, index) => {
+                revealTimeouts.push(setTimeout(() => {
+                    row.classList.add('visible');
+                }, index * 350));
+            });
+        } else {
+            forumRows.forEach(row => row.classList.remove('visible'));
+        }
+    });
+});
+</script>
+
+</body>
+</html>
