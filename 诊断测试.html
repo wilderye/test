@@ -1,0 +1,18 @@
+<head></head>
+<body>
+<div id="result">等待检测...</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var data = window.TH_REMOTE_PARAMS;
+    var resultDiv = document.getElementById('result');
+    
+    if (data && data.quote) {
+        resultDiv.innerText = "✅ 成功读取全局变量！内容：" + data.quote.substring(0, 100);
+        resultDiv.style.color = "green";
+    } else {
+        resultDiv.innerText = "❌ 无法读取全局变量！window.TH_REMOTE_PARAMS = " + JSON.stringify(data);
+        resultDiv.style.color = "red";
+    }
+});
+</script>
+</body>
