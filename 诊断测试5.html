@@ -364,12 +364,13 @@
           localStorage.setItem(storageKey, isDark ? 'light' : 'dark');
         });
 
-        // 2. Content Logic
-        const quoteRaw = `$1`;
-        const bookTitle = `$2`;
-        const innerVoice = `$3`;
-        const charNamePinyin = `$4`;
-        const teaPartyRaw = `$5`;
+        // 2. Content Logic - 从全局变量读取数据
+        const data = window.TH_REMOTE_PARAMS || {};
+        const quoteRaw = data.quote || '';
+        const bookTitle = data.book || '';
+        const innerVoice = data.voice || '';
+        const charNamePinyin = data.charName || '';
+        const teaPartyRaw = data.teaParty || '';
 
         // --- 文摘 (修改重点) ---
         const cleanQuote = quoteRaw.replace(/[\r\n]/g, '').trim();
