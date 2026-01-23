@@ -279,7 +279,9 @@
         background-color: #131313;
         color: #000;
         border: 3px solid #e2e2e2;
-        box-shadow: inset 0 0 0 1px #cbcbcb, inset 0 0 0 4px #e2e2e2;
+        box-shadow:
+          inset 0 0 0 1px #cbcbcb,
+          inset 0 0 0 4px #e2e2e2;
 
         align-items: center;
         justify-content: center;
@@ -288,7 +290,10 @@
         box-sizing: border-box; /* 确保边框计算在尺寸内 */
       }
       .emoji-btn:hover {
-        box-shadow: inset 0 0 0 1px #cbcbcb, inset 0 0 0 4px #e2e2e2, 0 0 0 3px #e2e2e2;
+        box-shadow:
+          inset 0 0 0 1px #cbcbcb,
+          inset 0 0 0 4px #e2e2e2,
+          0 0 0 3px #e2e2e2;
       }
       .emoji-btn:active {
         transform: scale(0.7); /* 点击时的按压感 */
@@ -298,7 +303,9 @@
       .emoji-btn.active {
         background-color: #d2bc95;
         border-color: #d2bc95;
-        box-shadow: inset 0 0 0 1px #c8bea3, inset 0 0 0 4px #d2bc95;
+        box-shadow:
+          inset 0 0 0 1px #c8bea3,
+          inset 0 0 0 4px #d2bc95;
       }
       .emoji-btn.active .icon-smiley {
         fill: #000;
@@ -342,7 +349,9 @@
       }
 
       .send-button:hover {
-        box-shadow: inset 0 0 0 1px #cbcbcb, 0 0 0 3px #e2e2e2;
+        box-shadow:
+          inset 0 0 0 1px #cbcbcb,
+          0 0 0 3px #e2e2e2;
       }
 
       .send-button:active {
@@ -611,10 +620,18 @@
         flex-shrink: 0;
         -webkit-mask-image: linear-gradient(
           to right,
-          transparent 0%,\n          /* 顶部完全透明 */ black 6px,\n          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),\n          /* 底部向上 px 处保持完全不透明 */ transparent 100%\n        );
+          transparent 0%,
+          /* 顶部完全透明 */ black 6px,
+          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),
+          /* 底部向上 px 处保持完全不透明 */ transparent 100%
+        );
         mask-image: linear-gradient(
           to right,
-          transparent 0,\n          /* 顶部完全透明 */ black 6px,\n          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),\n          transparent 100%\n        );
+          transparent 0,
+          /* 顶部完全透明 */ black 6px,
+          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),
+          transparent 100%
+        );
         scrollbar-width: none;
         -ms-overflow-style: none;
       }
@@ -638,7 +655,8 @@
       }
 
       .sticker-tab.active {
-        /*background-color: #d2bc95;*/\n        color: #fff;
+        /*background-color: #d2bc95;*/
+        color: #fff;
         border-color: #d2bc95;
       }
 
@@ -659,10 +677,18 @@
         margin: 6px 6px 0 0;
         -webkit-mask-image: linear-gradient(
           to bottom,
-          transparent 0%,\n          /* 顶部完全透明 */ black 6px,\n          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),\n          /* 底部向上 px 处保持完全不透明 */ transparent 100%\n        );
+          transparent 0%,
+          /* 顶部完全透明 */ black 6px,
+          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),
+          /* 底部向上 px 处保持完全不透明 */ transparent 100%
+        );
         mask-image: linear-gradient(
           to bottom,
-          transparent 0,\n          /* 顶部完全透明 */ black 6px,\n          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),\n          transparent 100%\n        );
+          transparent 0,
+          /* 顶部完全透明 */ black 6px,
+          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),
+          transparent 100%
+        );
       }
 
       .sticker-item {
@@ -801,7 +827,7 @@
         width: 100%;
         background-color: #1a1a1a;
         border: 1px solid #444;
-        border-radius: 50px;
+        border-radius: 5px;
         padding: 10px;
         color: #e2e2e2;
         font-size: 13px;
@@ -817,7 +843,6 @@
         min-height: 150px;
         resize: vertical;
         font-family: monospace;
-        border-radius: 10px;
       }
 
       .modal-footer {
@@ -925,7 +950,7 @@
             <div class="character-description">那我问你</div>
           </div>
         </div>
-        <div class="chat-messages"></div>
+        <div class="chat-messages">$1</div>
       </div>
       <div class="bubble-wrapper">
         <div class="bubble-shadow"></div>
@@ -964,16 +989,7 @@
     </div>
 
     <script>
-      (function() {
-        // --- 核心改动：从全局变量读取数据并注入 ---
-        const remoteData = window.TH_REMOTE_PARAMS || {};
-        const content = remoteData.content || '';
-        const msgContainer = document.querySelector('.chat-messages');
-        if (msgContainer) {
-            msgContainer.innerHTML = content;
-        }
-        // ------------------------------------
-
+      (function () {
         const sendButton = document.querySelector('.send-button');
         const input = document.querySelector('.message-input');
 
@@ -1016,7 +1032,8 @@
           };
         }
 
-        // ==================== 表情包管理系统 ====================\n        class StickerManager {
+        // ==================== 表情包管理系统 ====================
+        class StickerManager {
           constructor() {
             this.storageKey = 'srMsg_stickers';
             this.data = this.loadData();
@@ -1184,11 +1201,12 @@
             const cat = this.data.categories.find(c => c.id === categoryId);
             if (!cat) return 0;
 
-            const lines = text.split('\\n').filter(l => l.trim());
+            const lines = text.split('\n').filter(l => l.trim());
             let count = 0;
 
             for (const line of lines) {
-              // 支持两种格式: "说明|角色|URL" 或 "说明|URL"\n              const parts = line.split('|').map(p => p.trim());
+              // 支持两种格式: "说明|角色|URL" 或 "说明|URL"
+              const parts = line.split('|').map(p => p.trim());
 
               if (parts.length >= 2) {
                 const name = parts[0];
@@ -1205,7 +1223,7 @@
                 }
 
                 // 验证URL格式
-                if (url && (url.startsWith('http') || url.match(/^[a-zA-Z0-9_\\-]+\\.(webp|png|jpg|jpeg|gif)$/))) {
+                if (url && (url.startsWith('http') || url.match(/^[a-zA-Z0-9_\-]+\.(webp|png|jpg|jpeg|gif)$/))) {
                   const sticker = { name, url };
                   if (character) sticker.character = character;
                   cat.stickers.push(sticker);
@@ -1688,7 +1706,8 @@
             if (categoryId === 'default') return; // 默认分类不显示右键菜单
 
             this.contextMenu.innerHTML = `
-              <div class="context-menu-item" data-action="rename">重命名</div>\n              <div class="context-menu-divider"></div>
+              <div class="context-menu-item" data-action="rename">重命名</div>
+              <div class="context-menu-divider"></div>
               <div class="context-menu-item" data-action="delete">删除分类</div>
             `;
             this.contextMenu.style.left = e.pageX + 'px';
@@ -1714,7 +1733,8 @@
 
         // renderStickers函数已在前面定义,这里不需要重复定义
 
-        // ==================== 表情包管理系统结束 ====================\n
+        // ==================== 表情包管理系统结束 ====================
+
         // 动态获取 charName
         const charName = substitudeMacros('{{char}}');
         // Character configuration
@@ -1755,14 +1775,14 @@
         function renderStickers(content) {
           // 1. 处理短文件名
           content = content.replace(
-            /<sticker>([a-zA-Z0-9_\\-]+\\.(?:webp|png|jpg|jpeg|gif))<\/sticker>/g,
+            /<sticker>([a-zA-Z0-9_\-]+\.(?:webp|png|jpg|jpeg|gif))<\/sticker>/g,
             (match, filename) => {
               return `<img class="emotion" src="https://files.catbox.moe/${filename}" />`;
             },
           );
 
           // 2. 处理完整URL
-          content = content.replace(/<sticker>(https?:\\/\\/.+?)<\/sticker>/g, (match, url) => {
+          content = content.replace(/<sticker>(https?:\/\/.+?)<\/sticker>/g, (match, url) => {
             return `<img class="emotion" src="${url}" />`;
           });
 
@@ -1977,7 +1997,7 @@
           }
 
           // 写回srmsg
-          const merged = `<srmsg>\\n${lastRenderedMsgs.join('\\n')}\\n</srmsg>`;
+          const merged = `<srmsg>\n${lastRenderedMsgs.join('\n')}\n</srmsg>`;
           if (typeof setChatMessages === 'function') {
             await setChatMessages([{ message_id: getCurrentMessageId(), message: merged }], { refresh: 'none' });
             console.log('[DEBUG] 删除消息后写回:', merged);
@@ -1991,7 +2011,7 @@
           if (isTransfer) {
             sysDiv.innerHTML = `<img src="https://files.catbox.moe/wzn5n2.png" class="msg-alert"><span class="sys-msg">已收到转账：${creditOrContent}信用点</span>`;
           } else {
-            sysDiv.innerHTML = `<img src="https://files.catbox.moe/wzn5n2.png" class="msg-alert"><span class="sys-msg">${creditOrContent}</span>`;
+            sysDiv.innerHTML = `<img src=\"https://files.catbox.moe/wzn5n2.png\" class=\"msg-alert\"><span class=\"sys-msg\">${creditOrContent}</span>`;
           }
           chatMessages.appendChild(sysDiv);
           chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -2001,13 +2021,13 @@
         function addMessage(sender, message, type = 'text', animate = true, userMsgDivCb = null) {
           const chatMessages = document.querySelector('.chat-messages');
           // 检查是否为转账系统消息
-          const transferMatch = message.match(/^\\[转账]：已收到转账：(\\d+)信用点$/);
+          const transferMatch = message.match(/^\[转账]：已收到转账：(\d+)信用点$/);
           if (transferMatch) {
             addSystemMessage(transferMatch[1], true);
             return;
           }
           // 检查是否为通用系统消息
-          const sysMsgMatch = message.match(/^\\[系统消息]：(.*)$/);
+          const sysMsgMatch = message.match(/^\[系统消息]：(.*)$/);
           if (sysMsgMatch) {
             addSystemMessage(sysMsgMatch[1], false);
             return;
@@ -2019,12 +2039,12 @@
 
         async function renderOneSrMsg(line) {
           // 系统消息优先判断
-          const transferMatch = line.match(/^\\[转账]：已收到转账：(\\d+)信用点$/);
+          const transferMatch = line.match(/^\[转账]：已收到转账：(\d+)信用点$/);
           if (transferMatch) {
             addSystemMessage(transferMatch[1], true);
             return;
           }
-          const sysMsgMatch = line.match(/^\\[系统消息]：(.*)$/);
+          const sysMsgMatch = line.match(/^\[系统消息]：(.*)$/);
           if (sysMsgMatch) {
             addSystemMessage(sysMsgMatch[1], false);
             return;
@@ -2033,10 +2053,11 @@
           let content = line;
           if (line.startsWith('[你]：')) {
             sender = 'user';
-            content = line.replace(/^\\[你\\]：/, '');
+            content = line.replace(/^\[你\]：/, '');
           } else if (line.startsWith(`[${CHARACTER_CONFIG.char.name}]：`)) {
             sender = 'char';
-            content = line.replace(new RegExp(`\\\\[${CHARACTER_CONFIG.char.name}\\\\][:：]`), '');\n          }
+            content = line.replace(new RegExp(`\\[${CHARACTER_CONFIG.char.name}\\][:：]`), '');
+          }
           if (sender === 'char') {
             showTypingIndicator();
             await new Promise(res => setTimeout(res, calculateTypingDelay(content)));
@@ -2131,7 +2152,7 @@
           renderOneSrMsg(userLine);
 
           // 写回srmsg
-          const merged = `<srmsg>\\n${lastRenderedMsgs.join('\\n')}\\n</srmsg>`;
+          const merged = `<srmsg>\n${lastRenderedMsgs.join('\n')}\n</srmsg>`;
           if (typeof setChatMessages === 'function') {
             await setChatMessages([{ message_id: getCurrentMessageId(), message: merged }], { refresh: 'none' });
             console.log('[DEBUG] setChatMessages写回:', merged);
@@ -2142,12 +2163,12 @@
         function getAllStickersInfo() {
           const categories = stickerMgr.getCategories();
           const stickersInfo = {};
-          
+
           for (const cat of categories) {
             stickersInfo[cat.name] = cat.stickers.map(sticker => {
               const info = {
                 name: sticker.name,
-                url: sticker.url
+                url: sticker.url,
               };
               if (sticker.character) {
                 info.character = sticker.character;
@@ -2155,7 +2176,7 @@
               return info;
             });
           }
-          
+
           return JSON.stringify(stickersInfo, null, 2);
         }
 
@@ -2172,9 +2193,9 @@
           }
           // 生成AI回复 - 发送给AI时转换表情为文字
           const textMessage = convertStickersToText(message);
-          const textHistory = lastRenderedMsgs.map(line => convertStickersToText(line)).join('\\n');
+          const textHistory = lastRenderedMsgs.map(line => convertStickersToText(line)).join('\n');
           const stickersInfo = getAllStickersInfo();
-          let formattedMessage = `发送消息：${textMessage}\\n\\n[历史消息]\\n${textHistory}\\n\\n[可用表情包]\\n${stickersInfo}`;
+          let formattedMessage = `发送消息：${textMessage}\n\n[历史消息]\n${textHistory}\n\n[可用表情包]\n${stickersInfo}`;
           console.log('[DEBUG] 发送消息：', formattedMessage);
           showTypingIndicator();
           let aiReply = '';
@@ -2192,7 +2213,8 @@
           // 找到真正的新消息起点:在AI回复中搜索历史消息的最后一句,往前对比到AI回复的第一条
           let newMsgStartIndex = 0;
           if (lastRenderedMsgs.length > 0) {
-            const lastHistoryMsg = lastRenderedMsgs[lastRenderedMsgs.length - 1];\n            const lastMsgIndexInAI = aiSrMsgs.indexOf(lastHistoryMsg);
+            const lastHistoryMsg = lastRenderedMsgs[lastRenderedMsgs.length - 1];
+            const lastMsgIndexInAI = aiSrMsgs.indexOf(lastHistoryMsg);
 
             if (lastMsgIndexInAI !== -1) {
               // 找到了,往前对比到AI回复的第一条(索引0)
@@ -2227,7 +2249,7 @@
             await renderOneSrMsg(aiSrMsgs[i]);
           }
           // 写回srmsg
-          const merged = `<srmsg>\\n${lastRenderedMsgs.join('\\n')}\\n</srmsg>`;
+          const merged = `<srmsg>\n${lastRenderedMsgs.join('\n')}\n</srmsg>`;
           if (typeof setChatMessages === 'function') {
             await setChatMessages([{ message_id: getCurrentMessageId(), message: merged }], { refresh: 'none' });
             console.log('[DEBUG] setChatMessages写回:', merged);
@@ -2241,7 +2263,7 @@
           for (let i = lastRenderedMsgs.length - 1; i >= 0; i--) {
             if (
               lastRenderedMsgs[i].startsWith('[你]：') &&
-              lastRenderedMsgs[i].replace(/^\\[你\\]：/, '') === userMsgContent
+              lastRenderedMsgs[i].replace(/^\[你\]：/, '') === userMsgContent
             ) {
               userIdx = i;
               break;
@@ -2258,9 +2280,9 @@
           lastRenderedMsgs.splice(userIdx + 1);
           // 生成AI回复 - 发送给AI时转换表情为文字
           const textContent = convertStickersToText(userMsgContent);
-          const textHistory = lastRenderedMsgs.map(line => convertStickersToText(line)).join('\\n');
+          const textHistory = lastRenderedMsgs.map(line => convertStickersToText(line)).join('\n');
           const stickersInfo = getAllStickersInfo();
-          let formattedMessage = `发送消息：${textContent}\\n\\n[历史消息]\\n${textHistory}\\n\\n[可用表情包]\\n${stickersInfo}`;
+          let formattedMessage = `发送消息：${textContent}\n\n[历史消息]\n${textHistory}\n\n[可用表情包]\n${stickersInfo}`;
           console.log('[DEBUG] 发送消息reroll：', formattedMessage);
           showTypingIndicator();
           let aiReply = '';
@@ -2272,7 +2294,8 @@
             aiSrMsgs = extractAllValidSrMsgLines(aiReply);
           } catch (e) {
             hideTypingIndicator();
-            //aiSrMsgs = ['[AI]：AI回复失败'];\n            console.log('[DEBUG] AI回复失败');
+            //aiSrMsgs = ['[AI]：AI回复失败'];
+            console.log('[DEBUG] AI回复失败');
           }
           // 找到真正的新消息起点:在AI回复中搜索历史消息的最后一句,往前对比到AI回复的第一条
           let newMsgStartIndex = 0;
@@ -2311,7 +2334,7 @@
             insertPos++;
           }
           // 写回srmsg
-          const merged = `<srmsg>\\n${lastRenderedMsgs.join('\\n')}\\n</srmsg>`;
+          const merged = `<srmsg>\n${lastRenderedMsgs.join('\n')}\n</srmsg>`;
           if (typeof setChatMessages === 'function') {
             await setChatMessages([{ message_id: getCurrentMessageId(), message: merged }], { refresh: 'none' });
             console.log('[DEBUG] reroll setChatMessages写回:', merged);
@@ -2320,28 +2343,30 @@
 
         // 提取AI回复中所有 <srmsg> 块的消息行，按顺序合并，且只保留格式为 [xxx]：内容 的行
         function extractAllValidSrMsgLines(content) {
-          const tagRegex = /<srmsg>([\\s\\S]*?)<\\/srmsg>/g;
+          const tagRegex = /<srmsg>([\s\S]*?)<\/srmsg>/g;
           let match;
           let allLines = [];
           while ((match = tagRegex.exec(content)) !== null) {
             const blockLines = match[1]
-              .split('\\n')
+              .split('\n')
               .map(line => line.trim())
-              .filter(line => /^\\[.+?]：/.test(line));
+              .filter(line => /^\[.+?]：/.test(line));
             allLines = allLines.concat(blockLines);
           }
-          return allLines;\n        }
+          return allLines;
+        }
 
         // 依次动画显示历史消息（仅首次加载）
         async function animateInitialSrMsgs() {
           // 获取历史消息
-          const floorId = getCurrentMessageId ? getCurrentMessageId() : 0;
-          const messages = getChatMessages ? getChatMessages(floorId) : [];
-          // --- 注意：此处不再从 DOM 直接获取，而是使用最初传入的 content ---
-          // let content = messages[0]?.message || ''; 
-          // 兼容性修改：如果远程加载时已经把 content 传入了，我们优先处理
-          let content = window.TH_REMOTE_PARAMS.content || (messages[0]?.message || '');
-          
+          let content = '';
+          if (window.TH_REMOTE_PARAMS && window.TH_REMOTE_PARAMS.content) {
+            content = window.TH_REMOTE_PARAMS.content;
+          } else {
+            const floorId = getCurrentMessageId ? getCurrentMessageId() : 0;
+            const messages = getChatMessages ? getChatMessages(floorId) : [];
+            content = messages[0]?.message || '';
+          }
           let msgLines = extractAllValidSrMsgLines(content);
           console.log('[DEBUG] 历史消息:', msgLines);
           // 组装成 {content, sender}
@@ -2350,16 +2375,16 @@
             let msgContent = line;
             if (line.startsWith('[你]：')) {
               sender = 'user';
-              msgContent = line.replace(/^\\[你\\]：/, '');
+              msgContent = line.replace(/^\[你\]：/, '');
             } else if (line.startsWith(`[${CHARACTER_CONFIG.char.name}]：`)) {
               sender = 'char';
-              msgContent = line.replace(new RegExp(`\\\\[${CHARACTER_CONFIG.char.name}\\\\][:：]`), '');
+              msgContent = line.replace(new RegExp(`\\[${CHARACTER_CONFIG.char.name}\\][:：]`), '');
             } else if (line.startsWith('[转账]：') || line.startsWith('[系统消息]：')) {
               sender = 'system';
             }
             return { content: msgContent, sender };
           });
-          // 清空 (虽然 load 进来是空的，但保险起见)
+          // 清空
           document.querySelector('.chat-messages').innerHTML = '';
           await showMessagesSequentially(msgObjs);
           lastRenderedMsgs = [...msgLines];
