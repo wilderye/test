@@ -724,49 +724,29 @@
       </div>
     </div>
     <script>
-      // 使用 substitudeMacros 替换所有宏并初始化内容
-      (function initMacros() {
-        // 设置 CSS 变量
-        const favorability = substitudeMacros('{{format_message_variable::stat_data.菲林斯.好感度}}');
-        const moodImage = substitudeMacros('{{format_message_variable::stat_data.菲林斯.心情图片}}');
-        document.documentElement.style.setProperty('--fire-scale', `calc(${favorability}/100)`);
-        document.documentElement.style.setProperty('--qqflins-image', `url(${moodImage})`);
+      // 获取聊天变量
+      const variables = getVariables({ type: 'message', message_id: getCurrentMessageId() });
+      const flinsData = variables.stat_data?.菲林斯 || {};
 
-        // 设置 HTML 内容
-        document.getElementById('favorability-trend').textContent = substitudeMacros(
-          '{{format_message_variable::stat_data.菲林斯.好感趋势}}',
-        );
-        document.getElementById('status-relation').textContent = substitudeMacros(
-          '{{format_message_variable::stat_data.菲林斯.当前关系}}',
-        );
-        document.getElementById('status-time').textContent = substitudeMacros(
-          '{{format_message_variable::stat_data.菲林斯.状态.时间}}',
-        );
-        document.getElementById('status-location').textContent = substitudeMacros(
-          '{{format_message_variable::stat_data.菲林斯.状态.位置}}',
-        );
-        document.getElementById('status-outer-personality').textContent = substitudeMacros(
-          '{{format_message_variable::stat_data.菲林斯.心理.外在人格}}',
-        );
-        document.getElementById('status-inner-personality').textContent = substitudeMacros(
-          '{{format_message_variable::stat_data.菲林斯.心理.内在人格}}',
-        );
-        document.getElementById('status-desire').textContent = substitudeMacros(
-          '{{format_message_variable::stat_data.菲林斯.心理.私欲}}',
-        );
-        document.getElementById('status-posture').textContent = substitudeMacros(
-          '{{format_message_variable::stat_data.菲林斯.状态.姿态}}',
-        );
-        document.getElementById('status-clothing').textContent = substitudeMacros(
-          '{{format_message_variable::stat_data.菲林斯.状态.衣着}}',
-        );
-        document.getElementById('status-thought').textContent = substitudeMacros(
-          '{{format_message_variable::stat_data.菲林斯.心理.想法}}',
-        );
-        document.getElementById('status-mood').textContent = substitudeMacros(
-          '{{format_message_variable::stat_data.菲林斯.状态.心情符号}}',
-        );
-      })();
+      // 设置 CSS 变量
+      document.documentElement.style.setProperty('--fire-scale', `calc(${flinsData.好感度 || 0}/100)`);
+      document.documentElement.style.setProperty('--qqflins-image', `url(${flinsData.心情图片 || ''})`);
+
+      // 填充数据到 HTML 元素
+      document.getElementById('favorability-trend').textContent = flinsData.好感趋势 || '';
+      document.getElementById('status-relation').textContent = flinsData.当前关系 || '';
+      document.getElementById('status-time').textContent = flinsData.状态?.时间 || '';
+      document.getElementById('status-location').textContent = flinsData.状态?.位置 || '';
+      document.getElementById('status-outer-personality').textContent = flinsData.心理?.外在人格 || '';
+      document.getElementById('status-inner-personality').textContent = flinsData.心理?.内在人格 || '';
+      document.getElementById('status-desire').textContent = flinsData.心理?.私欲 || '';
+      document.getElementById('status-posture').textContent = flinsData.状态?.姿态 || '';
+      document.getElementById('status-clothing').textContent = flinsData.状态?.衣着 || '';
+      document.getElementById('status-thought').textContent = flinsData.心理?.想法 || '';
+      document.getElementById('status-mood').textContent = flinsData.状态?.心情符号 || '';
+
+      // 存储好感度值供后续使用
+      window._favorabilityValue = Number(flinsData.好感度) || 0;
 
       const lampWrapper = document.querySelector('.lamp-wrapper');
       const lampContainer = document.querySelector('.lamp-container');
@@ -927,10 +907,8 @@
         const favorabilityDisplay = document.getElementById('favorability-display');
         const favorabilityText = document.getElementById('favorability-text');
 
-        // 从模板变量中提取好感度数值
-        const favorabilityStr = substitudeMacros('{{format_message_variable::stat_data.菲林斯.好感度}}');
-        const favorabilityMatch = favorabilityStr.match(/\d+/);
-        const favorabilityValue = favorabilityMatch ? parseInt(favorabilityMatch[0]) : 0;
+        // 使用已获取的好感度数值
+        const favorabilityValue = window._favorabilityValue || 0;
 
         let showingText = true;
 
