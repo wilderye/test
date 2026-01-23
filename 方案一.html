@@ -49,7 +49,7 @@
       /* === 模式切换开关 === */
       .mode-switch {
         position: absolute;
-        top: 25px; /* 顶部对齐 */
+        top: 25px;
         right: 0;
         font-family: Arial, sans-serif;
         font-size: 8px;
@@ -112,10 +112,10 @@
         line-height: 1.8;
         margin-left: 2px;
         color: var(--c-sub-title);
-        display: block; /* 块级元素，让内容自然换行 */
+        display: block;
         transition: color 0.5s;
-        margin-top: 10px; /* 与主标题拉开一点距离 */
-        white-space: pre-wrap; /* 保留输入时的必要换行（如果有），平时自然折行 */
+        margin-top: 10px;
+        white-space: pre-wrap;
       }
 
       .book-source {
@@ -317,11 +317,11 @@
           <div class="monologue-section">
             <img src="https://i.postimg.cc/g2xwDjmt/IMG-20251204-125523.jpg" class="mood-image" alt="Mood" />
             <div class="voice-box">
-              <span class="quote-symbol qs-left">“</span>
+              <span class="quote-symbol qs-left">"</span>
               <div class="char-voice">
                 <span id="char-voice-text"></span><span class="typing-cursor" id="typing-cursor"></span>
               </div>
-              <span class="quote-symbol qs-right">”</span>
+              <span class="quote-symbol qs-right">"</span>
               <span class="monologue-tag" id="monologue-tag-text"></span>
             </div>
           </div>
@@ -364,33 +364,28 @@
           localStorage.setItem(storageKey, isDark ? 'light' : 'dark');
         });
 
-        // 2. Content Logic
-        // === 修改点：使用占位符代替 $1, $2 等 ===
-        const quoteRaw = `{{quote}}`;
-        const bookTitle = `{{book}}`;
-        const innerVoice = `{{voice}}`;
-        const charNamePinyin = `{{charName}}`;
-        const teaPartyRaw = `{{teaParty}}`;
+        // 2. Content Logic - 从全局变量读取数据
+        const data = window.TH_REMOTE_PARAMS || {};
 
-        // --- 文摘 (修改重点) ---
+        const quoteRaw = data.quote || '';
+        const bookTitle = data.book || '';
+        const innerVoice = data.voice || '';
+        const charNamePinyin = data.charName || '';
+        const teaPartyRaw = data.teaParty || '';
+
+        // --- 文摘 ---
         const cleanQuote = quoteRaw.replace(/[\r\n]/g, '').trim();
-
-        // 逻辑：只寻找第一个逗号或句号
-        // match[1] = 第一句(含标点), match[2] = 剩余所有文本
         const match = cleanQuote.match(/^([^，。]+[，。])(.*)$/);
 
         if (match) {
           document.getElementById('quote-main-text').innerText = match[1].trim();
-          // 剩下的部分如果不为空，放入 div 中，不再切割
           if (match[2] && match[2].trim()) {
-            // 放入纯文本，保留其原有的连续性
             const subDiv = document.createElement('div');
             subDiv.innerText = match[2].trim();
-            document.getElementById('quote-sub-text').innerHTML = ''; // 清空
+            document.getElementById('quote-sub-text').innerHTML = '';
             document.getElementById('quote-sub-text').appendChild(subDiv);
           }
         } else {
-          // 如果连一个标点都没有，全部作为主标题 (或者你可以决定全部做副标题，这里按全部主标题处理)
           document.getElementById('quote-main-text').innerText = cleanQuote;
         }
 
