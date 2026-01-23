@@ -7,10 +7,10 @@
         font-family: 'Huiwen-mincho';
         font-weight: normal;
       }
-      /* {{get_message_variable::stat_data.菲林斯.好感度}} */
+      /* CSS变量将通过JS动态设置 */
       :root {
-        --fire-scale: calc({{get_message_variable::stat_data.菲林斯.好感度}}/100);
-        --qqflins-image: url({{get_message_variable::stat_data.菲林斯.心情图片}});
+        --fire-scale: 0.5;
+        --qqflins-image: url();
       }
       body {
         display: flex;
@@ -20,7 +20,9 @@
       }
 
       .lamp-wrapper {
-        transition: transform 0.3s ease, opacity 0.3s ease;
+        transition:
+          transform 0.3s ease,
+          opacity 0.3s ease;
         pointer-events: none;
       }
 
@@ -55,12 +57,15 @@
         width: 100%;
         height: 100%;
         transform-origin: bottom center;
-        animation: lamp-sway-horizontal 4s ease-in-out infinite, lamp-sway-vertical 2.5s ease-in-out infinite;
+        animation:
+          lamp-sway-horizontal 4s ease-in-out infinite,
+          lamp-sway-vertical 2.5s ease-in-out infinite;
         pointer-events: none;
       }
 
       .lamp-wrapper.shrunk .lamp-animation {
-        animation: lamp-sway-horizontal-shrunk 4s ease-in-out infinite,
+        animation:
+          lamp-sway-horizontal-shrunk 4s ease-in-out infinite,
           lamp-sway-vertical-shrunk 2.5s ease-in-out infinite;
       }
 
@@ -99,7 +104,9 @@
         filter: blur(40px);
         z-index: -1;
         pointer-events: none;
-        transition: opacity 0.3s ease, visibility 0.3s ease;
+        transition:
+          opacity 0.3s ease,
+          visibility 0.3s ease;
       }
 
       .lamp-bg.hide {
@@ -115,8 +122,13 @@
         height: 120px;
         background: linear-gradient(to top, #1e90ff 0%, #4169e1 40%, #4a0dad 70%, #5034f147 100%);
         border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-        animation: flicker 0.3s ease-in-out infinite alternate, sway 2s ease-in-out infinite;
-        box-shadow: 0 0 30px #4169e1, 0 0 50px #520dad, 0 0 70px #5100ff;
+        animation:
+          flicker 0.3s ease-in-out infinite alternate,
+          sway 2s ease-in-out infinite;
+        box-shadow:
+          0 0 30px #4169e1,
+          0 0 50px #520dad,
+          0 0 70px #5100ff;
         filter: blur(8px);
       }
 
@@ -285,7 +297,9 @@
         transform: translate(-50%, -50%);
         opacity: 0;
         visibility: hidden;
-        transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        transition:
+          opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+          visibility 1.5s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 1;
       }
 
@@ -346,7 +360,9 @@
         font-family: 'Huiwen-mincho', sans-serif;
         font-size: 14px;
         color: rgb(89, 244, 254);
-        text-shadow: 0 0 8px rgba(71, 86, 186, 0.9), 0 0 12px rgba(44, 48, 122, 0.6);
+        text-shadow:
+          0 0 8px rgba(71, 86, 186, 0.9),
+          0 0 12px rgba(44, 48, 122, 0.6);
         font-weight: 500;
         animation: statusTwinkle var(--twinkle-duration) ease-in-out infinite;
         animation-delay: calc(var(--twinkle-delay) + 0.2s);
@@ -364,7 +380,9 @@
         font-family: 'Huiwen-mincho', sans-serif;
         font-size: 13px;
         color: #f0f0f0;
-        text-shadow: 0 0 6px rgba(71, 86, 186, 0.9), 0 0 10px rgba(44, 48, 122, 0.6);
+        text-shadow:
+          0 0 6px rgba(71, 86, 186, 0.9),
+          0 0 10px rgba(44, 48, 122, 0.6);
         line-height: 1.4;
         width: 80%;
         animation: statusTwinkle var(--twinkle-duration) ease-in-out infinite;
@@ -446,7 +464,9 @@
         color: #f0f0f0;
         text-shadow: 0 0 8px rgba(89, 244, 254, 0.9);
         box-shadow: 0 0 15px rgba(71, 86, 186, 0.4);
-        animation: bubbleFloat 3s ease-in-out infinite, statusTwinkle 4s ease-in-out infinite;
+        animation:
+          bubbleFloat 3s ease-in-out infinite,
+          statusTwinkle 4s ease-in-out infinite;
         white-space: nowrap;
         max-width: 100px;
       }
@@ -559,19 +579,27 @@
       @keyframes statusTwinkle {
         0% {
           opacity: 0.82;
-          text-shadow: 0 0 4px rgba(71, 86, 186, 0.6), 0 0 8px rgba(44, 48, 122, 0.4);
+          text-shadow:
+            0 0 4px rgba(71, 86, 186, 0.6),
+            0 0 8px rgba(44, 48, 122, 0.4);
         }
         40% {
           opacity: 1;
-          text-shadow: 0 0 10px rgba(89, 244, 254, 0.9), 0 0 16px rgba(44, 48, 122, 0.7);
+          text-shadow:
+            0 0 10px rgba(89, 244, 254, 0.9),
+            0 0 16px rgba(44, 48, 122, 0.7);
         }
         60% {
           opacity: 0.9;
-          text-shadow: 0 0 6px rgba(71, 86, 186, 0.7), 0 0 12px rgba(44, 48, 122, 0.5);
+          text-shadow:
+            0 0 6px rgba(71, 86, 186, 0.7),
+            0 0 12px rgba(44, 48, 122, 0.5);
         }
         100% {
           opacity: 0.85;
-          text-shadow: 0 0 5px rgba(71, 86, 186, 0.55), 0 0 9px rgba(44, 48, 122, 0.35);
+          text-shadow:
+            0 0 5px rgba(71, 86, 186, 0.55),
+            0 0 9px rgba(44, 48, 122, 0.35);
         }
       }
       .status-item:nth-child(1) {
@@ -649,53 +677,97 @@
             <div class="status-title">好感度</div>
             <div class="status-content" id="favorability-display" style="cursor: pointer">
               <span id="favorability-text"></span>
-              {{get_message_variable::stat_data.菲林斯.好感趋势}}
+              <span id="favorability-trend"></span>
             </div>
           </div>
           <div class="status-item">
             <div class="status-title">当前关系</div>
-            <div class="status-content">{{get_message_variable::stat_data.菲林斯.当前关系}}</div>
+            <div class="status-content" id="status-relation"></div>
           </div>
           <div class="status-item">
             <div class="status-title">时间</div>
-            <div class="status-content">{{get_message_variable::stat_data.菲林斯.状态.时间}}</div>
+            <div class="status-content" id="status-time"></div>
           </div>
           <div class="status-item">
             <div class="status-title">位置</div>
-            <div class="status-content">{{get_message_variable::stat_data.菲林斯.状态.位置}}</div>
+            <div class="status-content" id="status-location"></div>
           </div>
           <div class="status-item">
             <div class="status-title">外在人格</div>
-            <div class="status-content">{{get_message_variable::stat_data.菲林斯.心理.外在人格}}</div>
+            <div class="status-content" id="status-outer-personality"></div>
           </div>
           <div class="status-item">
             <div class="status-title">内在人格</div>
-            <div class="status-content">{{get_message_variable::stat_data.菲林斯.心理.内在人格}}</div>
+            <div class="status-content" id="status-inner-personality"></div>
           </div>
           <div class="status-item">
             <div class="status-title">私欲</div>
-            <div class="status-content">{{get_message_variable::stat_data.菲林斯.心理.私欲}}</div>
+            <div class="status-content" id="status-desire"></div>
           </div>
           <div class="status-item">
             <div class="status-title">姿态</div>
-            <div class="status-content">{{get_message_variable::stat_data.菲林斯.状态.姿态}}</div>
+            <div class="status-content" id="status-posture"></div>
           </div>
           <div class="status-item">
             <div class="status-title">衣着</div>
-            <div class="status-content">{{get_message_variable::stat_data.菲林斯.状态.衣着}}</div>
+            <div class="status-content" id="status-clothing"></div>
           </div>
           <div class="status-item">
             <div class="status-title">想法</div>
-            <div class="status-content">{{get_message_variable::stat_data.菲林斯.心理.想法}}</div>
+            <div class="status-content" id="status-thought"></div>
           </div>
           <div class="mood-container">
-            <div class="mood-bubble">{{get_message_variable::stat_data.菲林斯.状态.心情符号}}</div>
+            <div class="mood-bubble" id="status-mood"></div>
             <div class="qqflins"></div>
           </div>
         </div>
       </div>
     </div>
     <script>
+      // 使用 substitudeMacros 替换所有宏并初始化内容
+      (function initMacros() {
+        // 设置 CSS 变量
+        const favorability = substitudeMacros('{{format_message_variable::stat_data.菲林斯.好感度}}');
+        const moodImage = substitudeMacros('{{format_message_variable::stat_data.菲林斯.心情图片}}');
+        document.documentElement.style.setProperty('--fire-scale', `calc(${favorability}/100)`);
+        document.documentElement.style.setProperty('--qqflins-image', `url(${moodImage})`);
+
+        // 设置 HTML 内容
+        document.getElementById('favorability-trend').textContent = substitudeMacros(
+          '{{format_message_variable::stat_data.菲林斯.好感趋势}}',
+        );
+        document.getElementById('status-relation').textContent = substitudeMacros(
+          '{{format_message_variable::stat_data.菲林斯.当前关系}}',
+        );
+        document.getElementById('status-time').textContent = substitudeMacros(
+          '{{format_message_variable::stat_data.菲林斯.状态.时间}}',
+        );
+        document.getElementById('status-location').textContent = substitudeMacros(
+          '{{format_message_variable::stat_data.菲林斯.状态.位置}}',
+        );
+        document.getElementById('status-outer-personality').textContent = substitudeMacros(
+          '{{format_message_variable::stat_data.菲林斯.心理.外在人格}}',
+        );
+        document.getElementById('status-inner-personality').textContent = substitudeMacros(
+          '{{format_message_variable::stat_data.菲林斯.心理.内在人格}}',
+        );
+        document.getElementById('status-desire').textContent = substitudeMacros(
+          '{{format_message_variable::stat_data.菲林斯.心理.私欲}}',
+        );
+        document.getElementById('status-posture').textContent = substitudeMacros(
+          '{{format_message_variable::stat_data.菲林斯.状态.姿态}}',
+        );
+        document.getElementById('status-clothing').textContent = substitudeMacros(
+          '{{format_message_variable::stat_data.菲林斯.状态.衣着}}',
+        );
+        document.getElementById('status-thought').textContent = substitudeMacros(
+          '{{format_message_variable::stat_data.菲林斯.心理.想法}}',
+        );
+        document.getElementById('status-mood').textContent = substitudeMacros(
+          '{{format_message_variable::stat_data.菲林斯.状态.心情符号}}',
+        );
+      })();
+
       const lampWrapper = document.querySelector('.lamp-wrapper');
       const lampContainer = document.querySelector('.lamp-container');
       const statusPanel = document.querySelector('.status-panel');
@@ -856,7 +928,8 @@
         const favorabilityText = document.getElementById('favorability-text');
 
         // 从模板变量中提取好感度数值
-        const favorabilityMatch = '{{get_message_variable::stat_data.菲林斯.好感度}}'.match(/\d+/);
+        const favorabilityStr = substitudeMacros('{{format_message_variable::stat_data.菲林斯.好感度}}');
+        const favorabilityMatch = favorabilityStr.match(/\d+/);
         const favorabilityValue = favorabilityMatch ? parseInt(favorabilityMatch[0]) : 0;
 
         let showingText = true;
