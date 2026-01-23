@@ -611,18 +611,10 @@
         flex-shrink: 0;
         -webkit-mask-image: linear-gradient(
           to right,
-          transparent 0%,
-          /* 顶部完全透明 */ black 6px,
-          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),
-          /* 底部向上 px 处保持完全不透明 */ transparent 100%
-        );
+          transparent 0%,\n          /* 顶部完全透明 */ black 6px,\n          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),\n          /* 底部向上 px 处保持完全不透明 */ transparent 100%\n        );
         mask-image: linear-gradient(
           to right,
-          transparent 0,
-          /* 顶部完全透明 */ black 6px,
-          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),
-          transparent 100%
-        );
+          transparent 0,\n          /* 顶部完全透明 */ black 6px,\n          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),\n          transparent 100%\n        );
         scrollbar-width: none;
         -ms-overflow-style: none;
       }
@@ -646,8 +638,7 @@
       }
 
       .sticker-tab.active {
-        /*background-color: #d2bc95;*/
-        color: #fff;
+        /*background-color: #d2bc95;*/\n        color: #fff;
         border-color: #d2bc95;
       }
 
@@ -668,18 +659,10 @@
         margin: 6px 6px 0 0;
         -webkit-mask-image: linear-gradient(
           to bottom,
-          transparent 0%,
-          /* 顶部完全透明 */ black 6px,
-          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),
-          /* 底部向上 px 处保持完全不透明 */ transparent 100%
-        );
+          transparent 0%,\n          /* 顶部完全透明 */ black 6px,\n          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),\n          /* 底部向上 px 处保持完全不透明 */ transparent 100%\n        );
         mask-image: linear-gradient(
           to bottom,
-          transparent 0,
-          /* 顶部完全透明 */ black 6px,
-          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),
-          transparent 100%
-        );
+          transparent 0,\n          /* 顶部完全透明 */ black 6px,\n          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),\n          transparent 100%\n        );
       }
 
       .sticker-item {
@@ -818,7 +801,7 @@
         width: 100%;
         background-color: #1a1a1a;
         border: 1px solid #444;
-        border-radius: 5px;
+        border-radius: 50px;
         padding: 10px;
         color: #e2e2e2;
         font-size: 13px;
@@ -834,6 +817,7 @@
         min-height: 150px;
         resize: vertical;
         font-family: monospace;
+        border-radius: 10px;
       }
 
       .modal-footer {
@@ -941,7 +925,6 @@
             <div class="character-description">那我问你</div>
           </div>
         </div>
-        <!-- 这里的 $1 内容将通过 JS 动态注入 -->
         <div class="chat-messages"></div>
       </div>
       <div class="bubble-wrapper">
@@ -982,25 +965,15 @@
 
     <script>
       (function() {
-        // --- 核心：从全局变量获取数据 ---
-        const params = window.TH_REMOTE_PARAMS || {};
-        const rawContent = params.content || '';
-        // 优先使用传入的宏变量，回退到默认值
-        const charNameParam = params.charName || '那刻夏';
-        const userNameParam = params.userName || '你';
-        
-        // 将内容注入到容器中
-        const chatMessagesDiv = document.querySelector('.chat-messages');
-        if(chatMessagesDiv) {
-            chatMessagesDiv.innerHTML = rawContent;
+        // --- 核心改动：从全局变量读取数据并注入 ---
+        const remoteData = window.TH_REMOTE_PARAMS || {};
+        const content = remoteData.content || '';
+        const msgContainer = document.querySelector('.chat-messages');
+        if (msgContainer) {
+            msgContainer.innerHTML = content;
         }
+        // ------------------------------------
 
-        // 修改角色名显示
-        const charNameDiv = document.querySelector('.character-name');
-        if(charNameDiv) {
-            charNameDiv.textContent = charNameParam;
-        }
-        
         const sendButton = document.querySelector('.send-button');
         const input = document.querySelector('.message-input');
 
@@ -1013,11 +986,11 @@
         }
 
         // 检查并提供 substitudeMacros 函数的fallback
-        // 在远程模式下，我们主要依赖传入的params，但保留这个函数以兼容旧逻辑
         if (typeof substitudeMacros !== 'function') {
           window.substitudeMacros = function (str) {
-            if (str === '{{char}}') return charNameParam;
-            if (str === '{{user}}') return userNameParam;
+            // 简单的宏替换，返回原值或默认值
+            if (str === '{{char}}') return '那刻夏';
+            if (str === '{{user}}') return '你';
             return str;
           };
         }
@@ -1211,12 +1184,11 @@
             const cat = this.data.categories.find(c => c.id === categoryId);
             if (!cat) return 0;
 
-            const lines = text.split('\n').filter(l => l.trim());
+            const lines = text.split('\\n').filter(l => l.trim());
             let count = 0;
 
             for (const line of lines) {
-              // 支持两种格式: "说明|角色|URL" 或 "说明|URL"
-              const parts = line.split('|').map(p => p.trim());
+              // 支持两种格式: "说明|角色|URL" 或 "说明|URL"\n              const parts = line.split('|').map(p => p.trim());
 
               if (parts.length >= 2) {
                 const name = parts[0];
@@ -1233,7 +1205,7 @@
                 }
 
                 // 验证URL格式
-                if (url && (url.startsWith('http') || url.match(/^[a-zA-Z0-9_\-]+\.(webp|png|jpg|jpeg|gif)$/))) {
+                if (url && (url.startsWith('http') || url.match(/^[a-zA-Z0-9_\\-]+\\.(webp|png|jpg|jpeg|gif)$/))) {
                   const sticker = { name, url };
                   if (character) sticker.character = character;
                   cat.stickers.push(sticker);
@@ -1568,7 +1540,9 @@
                 1. 说明|角色|URL (例如：什么事|那刻夏|https://files.catbox.moe/glsjvq.png)<br/>
                 2. 说明|URL (例如：求摸摸|https://files.catbox.moe/6xpnbg.png)
               </div>
-              <textarea class="modal-input modal-textarea" id="batchText" placeholder="什么事|那刻夏|https://files.catbox.moe/glsjvq.png\n求摸摸|https://files.catbox.moe/6xpnbg.png\n疑惑|https://files.catbox.moe/ghb4h3.png"></textarea>
+              <textarea class="modal-input modal-textarea" id="batchText" placeholder="什么事|那刻夏|https://files.catbox.moe/glsjvq.png
+求摸摸|https://files.catbox.moe/6xpnbg.png
+疑惑|https://files.catbox.moe/ghb4h3.png"></textarea>
             `;
             document.getElementById('modalFooter').innerHTML = `
               <button class="modal-btn modal-btn-secondary" onclick="stickerUI.hideModal()">取消</button>
@@ -1714,8 +1688,7 @@
             if (categoryId === 'default') return; // 默认分类不显示右键菜单
 
             this.contextMenu.innerHTML = `
-              <div class="context-menu-item" data-action="rename">重命名</div>
-              <div class="context-menu-divider"></div>
+              <div class="context-menu-item" data-action="rename">重命名</div>\n              <div class="context-menu-divider"></div>
               <div class="context-menu-item" data-action="delete">删除分类</div>
             `;
             this.contextMenu.style.left = e.pageX + 'px';
@@ -1741,12 +1714,13 @@
 
         // renderStickers函数已在前面定义,这里不需要重复定义
 
+        // ==================== 表情包管理系统结束 ====================\n
         // 动态获取 charName
-        const charName = charNameParam;
+        const charName = substitudeMacros('{{char}}');
         // Character configuration
         const CHARACTER_CONFIG = {
           user: {
-            name: userNameParam,
+            name: '{{user}}',
             avatar: 'user_avatar',
           },
           char: {
@@ -1781,14 +1755,14 @@
         function renderStickers(content) {
           // 1. 处理短文件名
           content = content.replace(
-            /<sticker>([a-zA-Z0-9_\-]+\.(?:webp|png|jpg|jpeg|gif))<\/sticker>/g,
+            /<sticker>([a-zA-Z0-9_\\-]+\\.(?:webp|png|jpg|jpeg|gif))<\/sticker>/g,
             (match, filename) => {
               return `<img class="emotion" src="https://files.catbox.moe/${filename}" />`;
             },
           );
 
           // 2. 处理完整URL
-          content = content.replace(/<sticker>(https?:\/\/.+?)<\/sticker>/g, (match, url) => {
+          content = content.replace(/<sticker>(https?:\\/\\/.+?)<\/sticker>/g, (match, url) => {
             return `<img class="emotion" src="${url}" />`;
           });
 
@@ -1910,7 +1884,7 @@
                 clearTimeout(avatarLongPressTimer);
                 avatarLongPressTimer = null;
               }
-            };\
+            };
 
             avatar.addEventListener('mousedown', startAvatarLongPress);
             avatar.addEventListener('mouseup', endAvatarLongPress);
@@ -2003,7 +1977,7 @@
           }
 
           // 写回srmsg
-          const merged = `<srmsg>\n${lastRenderedMsgs.join('\n')}\n</srmsg>`;
+          const merged = `<srmsg>\\n${lastRenderedMsgs.join('\\n')}\\n</srmsg>`;
           if (typeof setChatMessages === 'function') {
             await setChatMessages([{ message_id: getCurrentMessageId(), message: merged }], { refresh: 'none' });
             console.log('[DEBUG] 删除消息后写回:', merged);
@@ -2017,7 +1991,7 @@
           if (isTransfer) {
             sysDiv.innerHTML = `<img src="https://files.catbox.moe/wzn5n2.png" class="msg-alert"><span class="sys-msg">已收到转账：${creditOrContent}信用点</span>`;
           } else {
-            sysDiv.innerHTML = `<img src=\"https://files.catbox.moe/wzn5n2.png\" class=\"msg-alert\"><span class=\"sys-msg\">${creditOrContent}</span>`;
+            sysDiv.innerHTML = `<img src="https://files.catbox.moe/wzn5n2.png" class="msg-alert"><span class="sys-msg">${creditOrContent}</span>`;
           }
           chatMessages.appendChild(sysDiv);
           chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -2027,13 +2001,13 @@
         function addMessage(sender, message, type = 'text', animate = true, userMsgDivCb = null) {
           const chatMessages = document.querySelector('.chat-messages');
           // 检查是否为转账系统消息
-          const transferMatch = message.match(/^\[转账]：已收到转账：(\d+)信用点$/);
+          const transferMatch = message.match(/^\\[转账]：已收到转账：(\\d+)信用点$/);
           if (transferMatch) {
             addSystemMessage(transferMatch[1], true);
             return;
           }
           // 检查是否为通用系统消息
-          const sysMsgMatch = message.match(/^\[系统消息]：(.*)$/);
+          const sysMsgMatch = message.match(/^\\[系统消息]：(.*)$/);
           if (sysMsgMatch) {
             addSystemMessage(sysMsgMatch[1], false);
             return;
@@ -2045,12 +2019,12 @@
 
         async function renderOneSrMsg(line) {
           // 系统消息优先判断
-          const transferMatch = line.match(/^\[转账]：已收到转账：(\d+)信用点$/);
+          const transferMatch = line.match(/^\\[转账]：已收到转账：(\\d+)信用点$/);
           if (transferMatch) {
             addSystemMessage(transferMatch[1], true);
             return;
           }
-          const sysMsgMatch = line.match(/^\[系统消息]：(.*)$/);
+          const sysMsgMatch = line.match(/^\\[系统消息]：(.*)$/);
           if (sysMsgMatch) {
             addSystemMessage(sysMsgMatch[1], false);
             return;
@@ -2059,11 +2033,10 @@
           let content = line;
           if (line.startsWith('[你]：')) {
             sender = 'user';
-            content = line.replace(/^\[你\]：/, '');
+            content = line.replace(/^\\[你\\]：/, '');
           } else if (line.startsWith(`[${CHARACTER_CONFIG.char.name}]：`)) {
             sender = 'char';
-            content = line.replace(new RegExp(`\\[${CHARACTER_CONFIG.char.name}\\][:：]`), '');
-          }
+            content = line.replace(new RegExp(`\\\\[${CHARACTER_CONFIG.char.name}\\\\][:：]`), '');\n          }
           if (sender === 'char') {
             showTypingIndicator();
             await new Promise(res => setTimeout(res, calculateTypingDelay(content)));
@@ -2158,7 +2131,7 @@
           renderOneSrMsg(userLine);
 
           // 写回srmsg
-          const merged = `<srmsg>\n${lastRenderedMsgs.join('\n')}\n</srmsg>`;
+          const merged = `<srmsg>\\n${lastRenderedMsgs.join('\\n')}\\n</srmsg>`;
           if (typeof setChatMessages === 'function') {
             await setChatMessages([{ message_id: getCurrentMessageId(), message: merged }], { refresh: 'none' });
             console.log('[DEBUG] setChatMessages写回:', merged);
@@ -2199,9 +2172,9 @@
           }
           // 生成AI回复 - 发送给AI时转换表情为文字
           const textMessage = convertStickersToText(message);
-          const textHistory = lastRenderedMsgs.map(line => convertStickersToText(line)).join('\n');
+          const textHistory = lastRenderedMsgs.map(line => convertStickersToText(line)).join('\\n');
           const stickersInfo = getAllStickersInfo();
-          let formattedMessage = `发送消息：${textMessage}\n\n[历史消息]\n${textHistory}\n\n[可用表情包]\n${stickersInfo}`;
+          let formattedMessage = `发送消息：${textMessage}\\n\\n[历史消息]\\n${textHistory}\\n\\n[可用表情包]\\n${stickersInfo}`;
           console.log('[DEBUG] 发送消息：', formattedMessage);
           showTypingIndicator();
           let aiReply = '';
@@ -2219,8 +2192,7 @@
           // 找到真正的新消息起点:在AI回复中搜索历史消息的最后一句,往前对比到AI回复的第一条
           let newMsgStartIndex = 0;
           if (lastRenderedMsgs.length > 0) {
-            const lastHistoryMsg = lastRenderedMsgs[lastRenderedMsgs.length - 1];
-            const lastMsgIndexInAI = aiSrMsgs.indexOf(lastHistoryMsg);
+            const lastHistoryMsg = lastRenderedMsgs[lastRenderedMsgs.length - 1];\n            const lastMsgIndexInAI = aiSrMsgs.indexOf(lastHistoryMsg);
 
             if (lastMsgIndexInAI !== -1) {
               // 找到了,往前对比到AI回复的第一条(索引0)
@@ -2255,7 +2227,7 @@
             await renderOneSrMsg(aiSrMsgs[i]);
           }
           // 写回srmsg
-          const merged = `<srmsg>\n${lastRenderedMsgs.join('\n')}\n</srmsg>`;
+          const merged = `<srmsg>\\n${lastRenderedMsgs.join('\\n')}\\n</srmsg>`;
           if (typeof setChatMessages === 'function') {
             await setChatMessages([{ message_id: getCurrentMessageId(), message: merged }], { refresh: 'none' });
             console.log('[DEBUG] setChatMessages写回:', merged);
@@ -2269,7 +2241,7 @@
           for (let i = lastRenderedMsgs.length - 1; i >= 0; i--) {
             if (
               lastRenderedMsgs[i].startsWith('[你]：') &&
-              lastRenderedMsgs[i].replace(/^\[你\]：/, '') === userMsgContent
+              lastRenderedMsgs[i].replace(/^\\[你\\]：/, '') === userMsgContent
             ) {
               userIdx = i;
               break;
@@ -2286,9 +2258,9 @@
           lastRenderedMsgs.splice(userIdx + 1);
           // 生成AI回复 - 发送给AI时转换表情为文字
           const textContent = convertStickersToText(userMsgContent);
-          const textHistory = lastRenderedMsgs.map(line => convertStickersToText(line)).join('\n');
+          const textHistory = lastRenderedMsgs.map(line => convertStickersToText(line)).join('\\n');
           const stickersInfo = getAllStickersInfo();
-          let formattedMessage = `发送消息：${textContent}\n\n[历史消息]\n${textHistory}\n\n[可用表情包]\n${stickersInfo}`;
+          let formattedMessage = `发送消息：${textContent}\\n\\n[历史消息]\\n${textHistory}\\n\\n[可用表情包]\\n${stickersInfo}`;
           console.log('[DEBUG] 发送消息reroll：', formattedMessage);
           showTypingIndicator();
           let aiReply = '';
@@ -2300,8 +2272,7 @@
             aiSrMsgs = extractAllValidSrMsgLines(aiReply);
           } catch (e) {
             hideTypingIndicator();
-            //aiSrMsgs = ['[AI]：AI回复失败'];
-            console.log('[DEBUG] AI回复失败');
+            //aiSrMsgs = ['[AI]：AI回复失败'];\n            console.log('[DEBUG] AI回复失败');
           }
           // 找到真正的新消息起点:在AI回复中搜索历史消息的最后一句,往前对比到AI回复的第一条
           let newMsgStartIndex = 0;
@@ -2340,7 +2311,7 @@
             insertPos++;
           }
           // 写回srmsg
-          const merged = `<srmsg>\n${lastRenderedMsgs.join('\n')}\n</srmsg>`;
+          const merged = `<srmsg>\\n${lastRenderedMsgs.join('\\n')}\\n</srmsg>`;
           if (typeof setChatMessages === 'function') {
             await setChatMessages([{ message_id: getCurrentMessageId(), message: merged }], { refresh: 'none' });
             console.log('[DEBUG] reroll setChatMessages写回:', merged);
@@ -2349,37 +2320,29 @@
 
         // 提取AI回复中所有 <srmsg> 块的消息行，按顺序合并，且只保留格式为 [xxx]：内容 的行
         function extractAllValidSrMsgLines(content) {
-          const tagRegex = /<srmsg>([\s\S]*?)<\/srmsg>/g;
+          const tagRegex = /<srmsg>([\\s\\S]*?)<\\/srmsg>/g;
           let match;
           let allLines = [];
           while ((match = tagRegex.exec(content)) !== null) {
             const blockLines = match[1]
-              .split('\n')
+              .split('\\n')
               .map(line => line.trim())
-              .filter(line => /^\[.+?]：/.test(line));
+              .filter(line => /^\\[.+?]：/.test(line));
             allLines = allLines.concat(blockLines);
           }
-          return allLines;
-        }
+          return allLines;\n        }
 
         // 依次动画显示历史消息（仅首次加载）
         async function animateInitialSrMsgs() {
           // 获取历史消息
           const floorId = getCurrentMessageId ? getCurrentMessageId() : 0;
           const messages = getChatMessages ? getChatMessages(floorId) : [];
-          // 如果没有从params获取到内容，尝试从历史记录获取，但在这里我们主要依靠 params.content
-          // 这里的逻辑稍微调整：如果 rawContent 已经有了，直接解析 rawContent
-          // 因为在远程模式下，rawContent 是通过 regex $1 传递过来的，这包含了当前卡片的所有内容
+          // --- 注意：此处不再从 DOM 直接获取，而是使用最初传入的 content ---
+          // let content = messages[0]?.message || ''; 
+          // 兼容性修改：如果远程加载时已经把 content 传入了，我们优先处理
+          let content = window.TH_REMOTE_PARAMS.content || (messages[0]?.message || '');
           
-          // 如果 rawContent 为空（极少情况），回退到 getChatMessages
-          let msgLines = [];
-          if(rawContent && rawContent.trim()) {
-               msgLines = rawContent.split('\n').filter(line => line.trim());
-          } else {
-               let content = messages[0]?.message || '';
-               msgLines = extractAllValidSrMsgLines(content);
-          }
-          
+          let msgLines = extractAllValidSrMsgLines(content);
           console.log('[DEBUG] 历史消息:', msgLines);
           // 组装成 {content, sender}
           const msgObjs = msgLines.map(line => {
@@ -2387,16 +2350,16 @@
             let msgContent = line;
             if (line.startsWith('[你]：')) {
               sender = 'user';
-              msgContent = line.replace(/^\[你\]：/, '');
+              msgContent = line.replace(/^\\[你\\]：/, '');
             } else if (line.startsWith(`[${CHARACTER_CONFIG.char.name}]：`)) {
               sender = 'char';
-              msgContent = line.replace(new RegExp(`\\[${CHARACTER_CONFIG.char.name}\\][:：]`), '');
+              msgContent = line.replace(new RegExp(`\\\\[${CHARACTER_CONFIG.char.name}\\\\][:：]`), '');
             } else if (line.startsWith('[转账]：') || line.startsWith('[系统消息]：')) {
               sender = 'system';
             }
             return { content: msgContent, sender };
           });
-          // 清空
+          // 清空 (虽然 load 进来是空的，但保险起见)
           document.querySelector('.chat-messages').innerHTML = '';
           await showMessagesSequentially(msgObjs);
           lastRenderedMsgs = [...msgLines];
@@ -2424,10 +2387,10 @@
         function startLongPress() {
           isLongPressTriggered = false;
           // 添加长按视觉反馈
-          if(sendButton) sendButton.style.opacity = '0.7';
+          sendButton.style.opacity = '0.7';
           longPressTimer = setTimeout(() => {
             isLongPressTriggered = true;
-            if(sendButton) sendButton.style.opacity = '1';
+            sendButton.style.opacity = '1';
             handleLongPressGenerate();
           }, LONG_PRESS_DURATION);
         }
@@ -2439,37 +2402,32 @@
             longPressTimer = null;
           }
           // 恢复按钮透明度
-          if(sendButton) sendButton.style.opacity = '1';
+          sendButton.style.opacity = '1';
         }
 
         // 发送按钮事件监听
-        if(sendButton) {
-            sendButton.addEventListener('mousedown', startLongPress);
-            sendButton.addEventListener('mouseup', endLongPress);
-            sendButton.addEventListener('mouseleave', endLongPress);
-            sendButton.addEventListener('touchstart', startLongPress);
-            sendButton.addEventListener('touchend', endLongPress);
-            sendButton.addEventListener('touchcancel', endLongPress);
+        sendButton.addEventListener('mousedown', startLongPress);
+        sendButton.addEventListener('mouseup', endLongPress);
+        sendButton.addEventListener('mouseleave', endLongPress);
+        sendButton.addEventListener('touchstart', startLongPress);
+        sendButton.addEventListener('touchend', endLongPress);
+        sendButton.addEventListener('touchcancel', endLongPress);
 
-            // 普通点击事件（仅发送用户消息）
-            sendButton.addEventListener('click', e => {
-              // 如果触发了长按，不执行点击
-              if (isLongPressTriggered) {
-                e.preventDefault();
-                return;
-              }
-              handleSendMessage();
-            });
-        }
-        
-        if(input) {
-            input.addEventListener('keypress', e => {
-              if (e.key === 'Enter') {
-                handleSendMessage();
-              }
-            });
-        }
-        
+        // 普通点击事件（仅发送用户消息）
+        sendButton.addEventListener('click', e => {
+          // 如果触发了长按，不执行点击
+          if (isLongPressTriggered) {
+            e.preventDefault();
+            return;
+          }
+          handleSendMessage();
+        });
+
+        input.addEventListener('keypress', e => {
+          if (e.key === 'Enter') {
+            handleSendMessage();
+          }
+        });
         // 页面加载后依次动画显示历史消息
         animateInitialSrMsgs();
       })();
