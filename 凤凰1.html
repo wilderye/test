@@ -1,7 +1,8 @@
-<!-- 样式部分保持不变，直接从原脚本迁移 -->
+<!-- phoenix-status.html -->
 <style>
 /* --- Nova's Design for Phoenix Status Bar --- */
 :root {
+    /* Define adaptive colors using CSS variables from SillyTavern for compatibility */
     --phoenix-border-color: color-mix(in srgb, var(--main-accent-color, #ffd700) 80%, transparent);
     --phoenix-title-color: var(--main-text-color, #111);
     --phoenix-bg-color: color-mix(in srgb, var(--main-bg-color, #fff) 90%, transparent);
@@ -111,7 +112,6 @@
 }
 </style>
 
-<!-- HTML 结构：移除了 $1 等变量，改为 ID 占位 -->
 <details class="phoenix-status-container">
     <summary>
         <span class="summary-title">「凤皇于飞·乱世浮光」</span>
@@ -122,45 +122,42 @@
     <div class="phoenix-status-content">
         <div class="phoenix-status-item">
             <h4>天下大势</h4>
-            <!-- 添加了 ID 以便 JS 填充内容 -->
-            <p id="ph-content-world">加载中...</p>
+            <!-- ID added for JS injection -->
+            <p id="ph-display-world"></p>
         </div>
         <div class="phoenix-status-item">
             <h4>身心状态</h4>
-            <p id="ph-content-body">加载中...</p>
+            <!-- ID added for JS injection -->
+            <p id="ph-display-body"></p>
         </div>
         <div class="phoenix-status-item">
             <h4>此刻情境</h4>
-            <p id="ph-content-current">加载中...</p>
+            <!-- ID added for JS injection -->
+            <p id="ph-display-moment"></p>
         </div>
         <div class="phoenix-status-item">
             <h4>二人羁绊</h4>
-            <p id="ph-content-bond">加载中...</p>
+            <!-- ID added for JS injection -->
+            <p id="ph-display-bond"></p>
         </div>
     </div>
 </details>
 
-<!-- JS 逻辑：读取全局变量并填充到上方 ID 中 -->
 <script>
+// 使用 IIFE (立即执行函数) 替代 DOMContentLoaded
 (function() {
-    // 1. 读取本地脚本设置的全局变量
-    const params = window.TH_PHOENIX_PARAMS || {};
+    // 从全局变量读取数据
+    const data = window.PHOENIX_STATUS_PARAMS || {};
     
-    // 2. 获取数据（处理空值）
-    const worldVal = params.world || '未知';
-    const bodyVal = params.body || '未知';
-    const currentVal = params.current || '未知';
-    const bondVal = params.bond || '未知';
-
-    // 3. 填充 DOM
-    const setContent = (id, html) => {
+    // 辅助函数：安全更新内容
+    const updateText = (id, content) => {
         const el = document.getElementById(id);
-        if (el) el.innerHTML = html;
+        if (el) el.innerHTML = content || '...';
     };
 
-    setContent('ph-content-world', worldVal);
-    setContent('ph-content-body', bodyVal);
-    setContent('ph-content-current', currentVal);
-    setContent('ph-content-bond', bondVal);
+    updateText('ph-display-world', data.world);
+    updateText('ph-display-body', data.body);
+    updateText('ph-display-moment', data.moment);
+    updateText('ph-display-bond', data.bond);
 })();
 </script>
