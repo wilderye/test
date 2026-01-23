@@ -7,10 +7,10 @@
         font-family: 'Huiwen-mincho';
         font-weight: normal;
       }
-      /* {{format_message_variable::stat_data.菲林斯.好感度}} */
+      /* {{get_message_variable::stat_data.菲林斯.好感度}} */
       :root {
-        --fire-scale: calc({{format_message_variable::stat_data.菲林斯.好感度}}/100);
-        --qqflins-image: url({{format_message_variable::stat_data.菲林斯.心情图片}});
+        --fire-scale: calc({{get_message_variable::stat_data.菲林斯.好感度}}/100);
+        --qqflins-image: url({{get_message_variable::stat_data.菲林斯.心情图片}});
       }
       body {
         display: flex;
@@ -649,47 +649,47 @@
             <div class="status-title">好感度</div>
             <div class="status-content" id="favorability-display" style="cursor: pointer">
               <span id="favorability-text"></span>
-              {{format_message_variable::stat_data.菲林斯.好感趋势}}
+              {{get_message_variable::stat_data.菲林斯.好感趋势}}
             </div>
           </div>
           <div class="status-item">
             <div class="status-title">当前关系</div>
-            <div class="status-content">{{format_message_variable::stat_data.菲林斯.当前关系}}</div>
+            <div class="status-content">{{get_message_variable::stat_data.菲林斯.当前关系}}</div>
           </div>
           <div class="status-item">
             <div class="status-title">时间</div>
-            <div class="status-content">{{format_message_variable::stat_data.菲林斯.状态.时间}}</div>
+            <div class="status-content">{{get_message_variable::stat_data.菲林斯.状态.时间}}</div>
           </div>
           <div class="status-item">
             <div class="status-title">位置</div>
-            <div class="status-content">{{format_message_variable::stat_data.菲林斯.状态.位置}}</div>
+            <div class="status-content">{{get_message_variable::stat_data.菲林斯.状态.位置}}</div>
           </div>
           <div class="status-item">
             <div class="status-title">外在人格</div>
-            <div class="status-content">{{format_message_variable::stat_data.菲林斯.心理.外在人格}}</div>
+            <div class="status-content">{{get_message_variable::stat_data.菲林斯.心理.外在人格}}</div>
           </div>
           <div class="status-item">
             <div class="status-title">内在人格</div>
-            <div class="status-content">{{format_message_variable::stat_data.菲林斯.心理.内在人格}}</div>
+            <div class="status-content">{{get_message_variable::stat_data.菲林斯.心理.内在人格}}</div>
           </div>
           <div class="status-item">
             <div class="status-title">私欲</div>
-            <div class="status-content">{{format_message_variable::stat_data.菲林斯.心理.私欲}}</div>
+            <div class="status-content">{{get_message_variable::stat_data.菲林斯.心理.私欲}}</div>
           </div>
           <div class="status-item">
             <div class="status-title">姿态</div>
-            <div class="status-content">{{format_message_variable::stat_data.菲林斯.状态.姿态}}</div>
+            <div class="status-content">{{get_message_variable::stat_data.菲林斯.状态.姿态}}</div>
           </div>
           <div class="status-item">
             <div class="status-title">衣着</div>
-            <div class="status-content">{{format_message_variable::stat_data.菲林斯.状态.衣着}}</div>
+            <div class="status-content">{{get_message_variable::stat_data.菲林斯.状态.衣着}}</div>
           </div>
           <div class="status-item">
             <div class="status-title">想法</div>
-            <div class="status-content">{{format_message_variable::stat_data.菲林斯.心理.想法}}</div>
+            <div class="status-content">{{get_message_variable::stat_data.菲林斯.心理.想法}}</div>
           </div>
           <div class="mood-container">
-            <div class="mood-bubble">{{format_message_variable::stat_data.菲林斯.状态.心情符号}}</div>
+            <div class="mood-bubble">{{get_message_variable::stat_data.菲林斯.状态.心情符号}}</div>
             <div class="qqflins"></div>
           </div>
         </div>
@@ -856,7 +856,7 @@
         const favorabilityText = document.getElementById('favorability-text');
 
         // 从模板变量中提取好感度数值
-        const favorabilityMatch = '{{format_message_variable::stat_data.菲林斯.好感度}}'.match(/\d+/);
+        const favorabilityMatch = '{{get_message_variable::stat_data.菲林斯.好感度}}'.match(/\d+/);
         const favorabilityValue = favorabilityMatch ? parseInt(favorabilityMatch[0]) : 0;
 
         let showingText = true;
