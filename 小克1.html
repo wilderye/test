@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Elms+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <style>
+        /* 全局样式 */
+        .cd-status-container {
+            font-family: 'Elms Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            width: 100%;
+            background: #fdf3ee;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(20, 18, 8, 0.1);
+            min-height: 120px;
+        }
+
+        /* 天气背景动画层 */
+        .weather-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        /* 晴天效果 */
+        .weather-sunny .weather-background {
+            background: linear-gradient(135deg, rgba(255, 230, 150, 0.4), rgba(255, 200, 100, 0.2));
+        }
+
+        .sun-ray {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: conic-gradient(from 0deg,
+                transparent 0deg,
+                rgba(255, 220, 100, 0.6) 20deg,
+                transparent 40deg,
+                transparent 60deg,
+                rgba(255, 200, 50, 0.5) 80deg,
+                transparent 100deg,
+                transparent 120deg,
+                rgba(255, 230, 150, 0.6) 140deg,
+                transparent 160deg,
+                transparent 180deg,
+                rgba(255, 210, 80, 0.5) 200deg,
+                transparent 220deg,
+                transparent 240deg,
+                rgba(255, 240, 180, 0.6) 260deg,
+                transparent 280deg,
+                transparent 300deg,
+                rgba(255, 200, 100, 0.5) 320deg,
+                transparent 340deg,
+                transparent 360deg
+            );
+            animation: sunRotate 20s linear infinite;
+        }
+
+        @keyframes sunRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 多云效果 */
+        .weather-cloudy .weather-background {
+            background: linear-gradient(135deg, #d0d0d0, #e8e8e8);
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 100px;
+            opacity: 0.9;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 100px;
+        }
+
+        .cloud1 {
+            width: 80px;
+            height: 30px;
+            top: 15%;
+            animation: cloudMove 15s linear infinite;
+        }
+
+        .cloud1::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 10px;
+        }
+
+        .cloud1::after {
+            width: 60px;
+            height: 40px;
+            top: -20px;
+            right: 10px;
+        }
+
+        .cloud2 {
+            width: 100px;
+            height: 35px;
+            top: 55%;
+            animation: cloudMove 20s linear infinite;
+            animation-delay: -8s;
+        }
+
+        .cloud2::before {
+            width: 60px;
+            height: 60px;
+            top: -30px;
+            left: 20px;
+        }
+
+        .cloud2::after {
+            width: 70px;
+            height: 45px;
+            top: -22px;
+            right: 15px;
+        }
+
+        @keyframes cloudMove {
+            from { left: -150px; }
+            to { left: 100%; }
+        }
+
+        /* 雨天效果 - 增强版 */
+        .weather-rainy .weather-background {
+            background: linear-gradient(135deg, #5a6e82, #8095aa);
+        }
+
+        .rain-drop {
+            position: absolute;
+            width: 2px;
+            height: 30px;
+            background: linear-gradient(to bottom,
+                transparent 0%,
+                rgba(150, 200, 255, 0.6) 30%,
+                rgba(180, 220, 255, 0.9) 70%,
+                rgba(200, 230, 255, 1) 100%
+            );
+            animation: rainFall linear infinite;
+            border-radius: 0 0 3px 3px;
+        }
+
+        @keyframes rainFall {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            to {
+                transform: translateY(var(--container-height));
+                opacity: 0;
+            }
+        }
+
+        /* 水滴溅起效果 - 改进版 */
+        .rain-splash {
+            position: absolute;
+            bottom: 5px;
+            width: 4px;
+            height: 4px;
+            border: 2px solid rgba(150, 200, 255, 0.8);
+            border-radius: 50%;
+            animation: splash 1.5s ease-out infinite;
+        }
+
+        @keyframes splash {
+            0% {
+                transform: scale(0) translateY(0);
+                opacity: 1;
+                border-width: 2px;
+            }
+            50% {
+                transform: scale(2) translateY(-10px);
+                opacity: 0.6;
+                border-width: 1px;
+            }
+            100% {
+                transform: scale(4) translateY(-5px);
+                opacity: 0;
+                border-width: 0.5px;
+            }
+        }
+
+        /* 暴风雨效果 */
+        .weather-stormy .weather-background {
+            background: linear-gradient(135deg, #3a4856, #5a6878);
+        }
+
+        /* 雪天效果 - 增强版 */
+        .weather-snowy .weather-background {
+            background: linear-gradient(135deg, #c8d4e0, #e0e8f0);
+        }
+
+        .snowflake {
+            position: absolute;
+            color: white;
+            font-size: 1.2em;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+            animation: snowFall linear infinite;
+            user-select: none;
+        }
+
+        @keyframes snowFall {
+            0% {
+                transform: translateY(-20px) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(var(--container-height)) translateX(30px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* 雾天效果 - 增强版 */
+        .weather-foggy .weather-background {
+            background: linear-gradient(135deg, #b8b8b8, #d0d0d0);
+        }
+
+        .fog-layer {
+            position: absolute;
+            width: 200%;
+            height: 120%;
+            top: -10%;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(200, 200, 200, 0.8) 20%,
+                rgba(220, 220, 220, 0.6) 50%,
+                rgba(200, 200, 200, 0.8) 80%,
+                transparent
+            );
+            animation: fogMove 12s ease-in-out infinite;
+        }
+
+        @keyframes fogMove {
+            0%, 100% {
+                transform: translateX(-50%);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translateX(0);
+                opacity: 0.9;
+            }
+        }
+
+        /* 闪电效果 - 增强版 */
+        .lightning-flash {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 200, 0.9) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            opacity: 0;
+            animation: lightning 4s infinite;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+
+        @keyframes lightning {
+            0%, 85%, 88%, 91%, 94%, 100% {
+                opacity: 0;
+            }
+            86%, 92% {
+                opacity: 0.8;
+            }
+            89%, 95% {
+                opacity: 1;
+            }
+        }
+
+        /* 主内容区 */
+        .status-content {
+            position: relative;
+            z-index: 2;
+            padding: 16px 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        /* 响应式布局 */
+        @media (max-width: 768px) {
+            .status-content {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+        }
+
+        /* 状态块通用样式 */
+        .status-block {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(218, 118, 86, 0.2);
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .status-block:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(218, 118, 86, 0.15);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 块标题 */
+        .block-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #141208;
+            opacity: 0.5;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        /* 主要信息 */
+        .main-info {
+            font-size: 18px;
+            font-weight: 500;
+            color: #141208;
+            margin-bottom: 4px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 次要信息 */
+        .sub-info {
+            font-size: 13px;
+            color: #141208;
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        /* 图标动画 */
+        .icon {
+            display: inline-block;
+            font-size: 20px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        /* 进度条 */
+        .progress-bar {
+            height: 4px;
+            background: rgba(218, 118, 86, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #da7656, #e89176);
+            border-radius: 2px;
+            transition: width 1s ease;
+            animation: progressPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes progressPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* 标签样式 */
+        .tag {
+            display: inline-block;
+            padding: 3px 8px;
+            background: rgba(218, 118, 86, 0.1);
+            color: #da7656;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* 数值强调 */
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #da7656;
+            animation: numberTick 0.5s ease-out;
+        }
+
+        @keyframes numberTick {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* 特殊状态指示器 */
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-optimal { background: #4ade80; }
+        .status-neutral { background: #facc15; }
+        .status-passive { background: #fb923c; }
+        .status-reluctant { background: #f87171; }
+        .status-minimal { background: #a78bfa; }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.7;
+            }
+        }
+
+        /* Mood光晕 - 调整为更subtle的效果 */
+        .mood-glow {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 20px;
+            border-radius: 2px;
+            opacity: 0.5;
+        }
+
+        .glow-optimal { background: #4ade80; }
+        .glow-neutral { background: #facc15; }
+        .glow-passive { background: #fb923c; }
+        .glow-reluctant { background: #f87171; }
+        .glow-minimal { background: #a78bfa; }
+    </style>
+
+    <div class="cd-status-container" id="status-container">
+        <!-- 天气背景效果层 -->
+        <div class="weather-background" id="weather-bg"></div>
+
+        <!-- 主内容 -->
+        <div class="status-content">
+            <!-- 第一栏：日期时间 -->
+            <div class="status-block" style="animation-delay: 0.1s;">
+                <div class="block-title">System Time</div>
+                <div class="main-info">
+                    <span class="icon">📅</span> <span id="val-time"></span>
+                </div>
+                <div class="sub-info">
+                    <span id="val-date"></span> · <span id="val-day"></span>
+                </div>
+            </div>
+
+            <!-- 第二栏：环境信息 -->
+            <div class="status-block" style="animation-delay: 0.2s;">
+                <div class="block-title">Environment</div>
+                <div class="main-info">
+                    <span class="icon" id="weather-icon">☀️</span>
+                    <span class="metric-value" id="val-temp"></span>
+                </div>
+                <div class="sub-info">
+                    体感 <span id="val-feel"></span> · 湿度 <span id="val-humid"></span>
+                </div>
+            </div>
+
+            <!-- 第三栏：系统状态 -->
+            <div class="status-block" style="animation-delay: 0.3s; position: relative;">
+                <div class="mood-glow" id="mood-glow"></div>
+                <div class="block-title">Claude System Status</div>
+                <div class="main-info">
+                    <span class="status-indicator" id="mood-indicator"></span>
+                    <span style="margin-left: 8px;" id="val-mood-type"></span>
+                </div>
+                <div class="sub-info">
+                    <span class="tag" id="val-mood-tag"></span>
+                    <span style="margin-left: auto;" id="val-mood-prog"></span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="mood-bar-fill"></div>
+                </div>
+            </div>
+
+            <!-- 第四栏：用户活动 -->
+            <div class="status-block" style="animation-delay: 0.4s;">
+                <div class="block-title">User Activity</div>
+                <div class="main-info" style="font-size: 16px;">
+                    <span class="icon">👤</span> <span id="val-activity"></span>
+                </div>
+                <div class="sub-info">
+                    用户生产力评分: <span class="metric-value" style="font-size: 18px;" id="val-score"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 动态生成天气效果与数据注入 (IIFE 立即执行)
+        (function() {
+            // 获取全局参数
+            const params = window.TH_REMOTE_PARAMS || {};
+            
+            // 填充文本数据
+            document.getElementById('val-date').textContent = params.date;
+            document.getElementById('val-time').textContent = params.time;
+            document.getElementById('val-day').textContent = params.day;
+            document.getElementById('val-temp').textContent = params.temp;
+            document.getElementById('val-feel').textContent = params.feel;
+            document.getElementById('val-humid').textContent = params.humidity;
+            document.getElementById('val-mood-type').textContent = params.moodType;
+            document.getElementById('val-mood-tag').textContent = params.moodTag;
+            document.getElementById('val-mood-prog').textContent = params.moodProg;
+            document.getElementById('mood-bar-fill').style.width = params.moodProg;
+            document.getElementById('val-activity').textContent = params.activity;
+            document.getElementById('val-score').textContent = params.score;
+
+            // 逻辑处理
+            const container = document.getElementById('status-container');
+            const weatherBg = document.getElementById('weather-bg');
+            const weatherType = params.weatherType || 'sunny';
+            const weatherIcon = document.getElementById('weather-icon');
+            const moodGlow = document.getElementById('mood-glow');
+            const moodIndicator = document.getElementById('mood-indicator');
+
+            // 获取容器实际高度
+            const containerHeight = container.offsetHeight;
+            container.style.setProperty('--container-height', containerHeight + 'px');
+
+            // 设置天气图标
+            const weatherIcons = {
+                'sunny': '☀️',
+                'cloudy': '☁️',
+                'rainy': '🌧️',
+                'snowy': '❄️',
+                'stormy': '⛈️',
+                'foggy': '🌫️'
+            };
+            weatherIcon.textContent = weatherIcons[weatherType] || '🌤️';
+
+            // 设置天气 Class
+            container.className = 'cd-status-container weather-' + weatherType;
+
+            // 根据天气类型生成动画元素
+            switch(weatherType) {
+                case 'sunny':
+                    const sunRay = document.createElement('div');
+                    sunRay.className = 'sun-ray';
+                    weatherBg.appendChild(sunRay);
+                    break;
+
+                case 'cloudy':
+                    for(let i = 0; i < 2; i++) {
+                        const cloud = document.createElement('div');
+                        cloud.className = `cloud cloud${i+1}`;
+                        weatherBg.appendChild(cloud);
+                    }
+                    break;
+
+                case 'rainy':
+                    for(let i = 0; i < 40; i++) {
+                        const drop = document.createElement('div');
+                        drop.className = 'rain-drop';
+                        drop.style.left = Math.random() * 100 + '%';
+                        drop.style.animationDuration = (Math.random() * 0.5 + 0.4) + 's';
+                        drop.style.animationDelay = Math.random() * 2 + 's';
+                        drop.style.opacity = Math.random() * 0.4 + 0.6;
+                        drop.style.filter = `blur(${Math.random() * 0.5}px)`;
+                        weatherBg.appendChild(drop);
+                    }
+                    for(let i = 0; i < 10; i++) {
+                        setTimeout(() => {
+                            const splash = document.createElement('div');
+                            splash.className = 'rain-splash';
+                            splash.style.left = Math.random() * 100 + '%';
+                            splash.style.animationDelay = Math.random() * 1.5 + 's';
+                            weatherBg.appendChild(splash);
+                        }, i * 200);
+                    }
+                    break;
+
+                case 'stormy':
+                    for(let i = 0; i < 60; i++) {
+                        const drop = document.createElement('div');
+                        drop.className = 'rain-drop';
+                        drop.style.left = Math.random() * 100 + '%';
+                        drop.style.animationDuration = (Math.random() * 0.3 + 0.2) + 's';
+                        drop.style.animationDelay = Math.random() * 1 + 's';
+                        drop.style.opacity = Math.random() * 0.3 + 0.7;
+                        drop.style.height = '40px';
+                        weatherBg.appendChild(drop);
+                    }
+                    const lightning = document.createElement('div');
+                    lightning.className = 'lightning-flash';
+                    weatherBg.appendChild(lightning);
+                    break;
+
+                case 'snowy':
+                    const snowflakes = ['❄', '❅', '❆'];
+                    for(let i = 0; i < 25; i++) {
+                        const snow = document.createElement('div');
+                        snow.className = 'snowflake';
+                        snow.textContent = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+                        snow.style.left = Math.random() * 100 + '%';
+                        snow.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                        snow.style.animationDelay = Math.random() * 2 + 's';
+                        snow.style.fontSize = (Math.random() * 1 + 0.8) + 'em';
+                        weatherBg.appendChild(snow);
+                    }
+                    break;
+
+                case 'foggy':
+                    for(let i = 0; i < 3; i++) {
+                        const fog = document.createElement('div');
+                        fog.className = 'fog-layer';
+                        fog.style.animationDelay = i * 4 + 's';
+                        fog.style.animationDuration = (12 + i * 2) + 's';
+                        weatherBg.appendChild(fog);
+                    }
+                    break;
+            }
+
+            // 设置 Mood Class 和光晕
+            const moodType = (params.moodType || '').toLowerCase();
+            moodGlow.className = 'mood-glow glow-' + moodType;
+            moodIndicator.className = 'status-indicator status-' + moodType;
+        })();
+    </script>
+</body>
+</html>
