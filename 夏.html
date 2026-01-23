@@ -1,0 +1,2517 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Star Rail Messaging</title>
+    <style>
+      /* Global styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Microsoft YaHei', Arial, sans-serif, 'PingFang SC';
+        background-color: rgba(0, 0, 0, 0);
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        padding: 20px;
+      }
+      .main-container {
+        width: 100%;
+        max-width: 800px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      /* Chat container */
+      .chat-container {
+        width: calc(100% - 14px);
+        max-width: 800px;
+        background-color: #d4d4d4;
+        border-radius: 0 25px 0 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        display: flex;
+        flex-direction: column;
+        height: max-content;
+        max-height: 700px;
+        min-height: 400px;
+        padding: 10px;
+      }
+
+      /* Chat header */
+      .chat-header {
+        padding: 5px 20px 10px 20px;
+        border-bottom: 1px solid #adb3b6;
+        flex-shrink: 0;
+      }
+
+      .character-info {
+        text-align: left;
+      }
+
+      .character-name {
+        font-size: 20px;
+        font-weight: bold;
+        color: #000;
+      }
+
+      .character-description {
+        font-size: 14px;
+        color: #696c6c;
+      }
+
+      /* Chat messages */
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-mask-image: linear-gradient(
+          to bottom,
+          transparent 0%,
+          /* 顶部完全透明 */ black 10px,
+          /* 经过 px 过渡到完全不透明 */ black calc(100% - 10px),
+          /* 底部向上 px 处保持完全不透明 */ transparent 100%
+        );
+        mask-image: linear-gradient(
+          to bottom,
+          transparent 0,
+          /* 顶部完全透明 */ black 10px,
+          /* 经过 px 过渡到完全不透明 */ black calc(100% - 10px),
+          transparent 100%
+        );
+      }
+
+      /* Message containers */
+      .MessageToMe {
+        display: flex;
+        flex-direction: row;
+        margin-top: 25px;
+        margin-bottom: 25px;
+        margin-left: 15px;
+      }
+
+      .MessageFromMe {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        margin-top: 25px;
+        margin-bottom: 15px;
+        margin-right: 15px;
+      }
+
+      .char_avatar {
+        min-width: 65px;
+        border: 2px solid #c8bea3;
+        border-radius: 100%;
+        width: 65px;
+        height: 65px;
+        background-size: cover;
+        background-position: center;
+        background-image: url('https://files.catbox.moe/qyewjd.png');
+      }
+
+      .user_avatar {
+        min-width: 65px;
+        border: 2px solid #c8bea3;
+        border-radius: 100%;
+        width: 65px;
+        height: 65px;
+        background-size: cover;
+        background-position: center;
+      }
+
+      .NM-Container {
+        display: flex;
+        flex-direction: column;
+        margin-left: 15px;
+        margin-right: 15px;
+        max-width: calc(100% - 100px);
+      }
+
+      .Name-left {
+        align-items: flex-start;
+      }
+
+      .Name-right {
+        align-items: flex-end;
+      }
+
+      .SenderName {
+        color: #696868;
+        position: relative;
+        margin-bottom: 5px;
+        font-size: 14px;
+      }
+
+      .MessageLeft {
+        border: 0px;
+        background-color: #e7e7e7;
+        border-radius: 0 10px 10px 10px;
+        font-size: 14px;
+        font-weight: bold;
+        padding: 10px 15px;
+        height: fit-content;
+        color: #202122;
+        box-shadow: -1px 1px 2px rgb(0 0 0 / 30%);
+      }
+
+      .MessageRight {
+        border: 0px;
+        background-color: #d2bc95;
+        border-radius: 10px 0 10px 10px;
+        font-size: 14px;
+        font-weight: bold;
+        padding: 10px 15px;
+        height: fit-content;
+        color: #202122;
+        box-shadow: 1px 1px 2px rgb(0 0 0 / 30%);
+      }
+
+      /* Emotion message styles */
+      .emotion {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+      }
+
+      .MessageLeft:has(.emotion),
+      .MessageRight:has(.emotion) {
+        background: none;
+        box-shadow: none;
+        padding: 0;
+      }
+
+      /* Chat input */
+      .bubble-wrapper {
+        position: relative; /* 作为定位基准 */
+        width: 100%;
+        max-width: 800px;
+      }
+
+      /* --- 第一层：透明轮廓投影 (Shadow Layer) --- */
+      .bubble-shadow {
+        position: absolute;
+        top: 6px; /* 投影向下偏移 */
+        left: 6px; /* 投影向右偏移 */
+        width: 100%;
+        height: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.2); /* 投影的轮廓线颜色 */
+        z-index: 0; /* 在最底层 */
+        pointer-events: none; /* 让鼠标事件穿透过去 */
+        background: transparent; /* 中间透明 */
+      }
+
+      /* 投影的小尾巴 */
+      .bubble-shadow::after {
+        content: '';
+        position: absolute;
+        bottom: -8.5px;
+        right: 16px;
+        width: 14px;
+        height: 14px;
+
+        /* 遮罩背景色：必须等于网页背景色 */
+        background-color: var(--SmartThemeBotMesBlurTintColor);
+
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+
+        transform: rotate(45deg) skew(10deg, 10deg);
+      }
+
+      /* --- 第二层：聊天主界面 (Main Layer) --- */
+      .chat-input {
+        position: relative;
+        z-index: 1; /* 盖在投影上面 */
+        width: 100%;
+        background-color: #2b2b2b; /* 主体背景色 */
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+        border: 1px solid #939393; /* 主体边框颜色 */
+        gap: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      /* 主界面的小尾巴 */
+      .chat-input::after {
+        content: '';
+        position: absolute;
+        bottom: -8.5px; /* 微调以盖住边框 */
+        right: 16px; /* 必须与投影位置一致 */
+        width: 14px;
+        height: 14px;
+
+        /* 背景色和边框跟随主体 */
+        background-color: #2b2b2b;
+        border-right: 1px solid #939393;
+        border-bottom: 1px solid #939393;
+
+        transform: rotate(45deg) skew(10deg, 10deg);
+      }
+
+      .message-input {
+        flex: 1;
+        background-color: #1a1a1a;
+        border: 1px solid #444;
+        border-radius: 50px;
+        height: 40px;
+        padding: 0 20px;
+        color: white;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .message-input:focus {
+        border-color: #777;
+      }
+
+      .emoji-btn {
+        cursor: pointer;
+        display: flex;
+        border-radius: 50%;
+        /* --- 核心颜色设置 --- */
+        background-color: #131313;
+        color: #000;
+        border: 3px solid #e2e2e2;
+        box-shadow: inset 0 0 0 1px #cbcbcb, inset 0 0 0 4px #e2e2e2;
+
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        white-space: nowrap;
+        box-sizing: border-box; /* 确保边框计算在尺寸内 */
+      }
+      .emoji-btn:hover {
+        box-shadow: inset 0 0 0 1px #cbcbcb, inset 0 0 0 4px #e2e2e2, 0 0 0 3px #e2e2e2;
+      }
+      .emoji-btn:active {
+        transform: scale(0.7); /* 点击时的按压感 */
+      }
+
+      /* 面板展开时的激活状态 */
+      .emoji-btn.active {
+        background-color: #d2bc95;
+        border-color: #d2bc95;
+        box-shadow: inset 0 0 0 1px #c8bea3, inset 0 0 0 4px #d2bc95;
+      }
+      .emoji-btn.active .icon-smiley {
+        fill: #000;
+        stroke: #000;
+      }
+      .icon-smiley {
+        width: 30px;
+        height: 30px;
+        fill: #e2e2e2;
+        stroke: #e2e2e2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .icon-smiley .mouth {
+        stroke-width: 1;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+      }
+      .icon-smiley .eye {
+        stroke: none;
+      }
+      .send-button {
+        /* --- 核心颜色设置 --- */
+        background-color: #e2e2e2; /* 内部填充色：亮灰 */
+        color: #000;
+        border: 3px solid #e2e2e2;
+        box-shadow: inset 0 0 0 1px #cbcbcb;
+        /* 其他原有样式保持不变 */
+        border-radius: 50px;
+        padding: 0 24px;
+        height: 36px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        white-space: nowrap;
+        box-sizing: border-box; /* 确保边框计算在尺寸内 */
+      }
+
+      .send-button:hover {
+        box-shadow: inset 0 0 0 1px #cbcbcb, 0 0 0 3px #e2e2e2;
+      }
+
+      .send-button:active {
+        transform: scale(0.8); /* 点击时的按压感 */
+      }
+
+      /* Scrollbar styling */
+      @media (min-width: 425px) {
+        .chat-messages::-webkit-scrollbar {
+          width: 4px;
+        }
+      }
+      .chat-messages::-webkit-scrollbar-track {
+        background: #d4d4d4;
+      }
+
+      .chat-messages::-webkit-scrollbar-thumb {
+        background: #888;
+      }
+
+      .chat-messages::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+      .msg-alert {
+        vertical-align: middle;
+        margin-right: 4px;
+        width: 24px;
+        height: 24px;
+      }
+      .sys-msg {
+        font-size: 12px;
+        color: #888888;
+      }
+      .sysmsg-container {
+        margin: 25px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+      }
+      /* Responsive design */
+      @media (max-width: 768px) {
+        .NM-Container {
+          max-width: calc(100% - 80px);
+        }
+      }
+      /* Responsive design for mobile */
+      @media (max-width: 425px) {
+        .chat-container {
+          width: 100%;
+        }
+        .char_avatar,
+        .user_avatar {
+          min-width: 40px;
+          width: 40px;
+          height: 40px;
+        }
+        .send-button {
+          padding: 10px;
+        }
+        body {
+          padding: 8px 0;
+        }
+        .MessageToMe {
+          margin-left: 0;
+          margin-top: 15px;
+          margin-bottom: 15px;
+        }
+        .MessageFromMe {
+          margin-right: 0;
+          margin-top: 15px;
+          margin-bottom: 15px;
+        }
+        .NM-Container {
+          margin-left: 5px;
+          margin-right: 5px;
+          max-width: 100%;
+        }
+        .chat-input {
+          padding: 12px;
+          gap: 5px;
+        }
+        .sticker-panel {
+          width: calc(100% + 2px) !important;
+          max-width: none;
+        }
+        .sticker-panel::after {
+          right: 82px !important;
+        }
+        .chat-messages::-webkit-scrollbar {
+          width: 0px;
+        }
+        .delete-message-btn {
+          top: 45px;
+          padding: 10px;
+          gap: 2px;
+          margin-left: 2px;
+          margin-right: 2px;
+        }
+      }
+      .chat-message-animate {
+        animation: chatMessageIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      @keyframes chatMessageIn {
+        0% {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .reroll-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        cursor: pointer;
+        border-radius: 99px;
+        transition: all 0.3s ease;
+      }
+      .reroll-overlay svg {
+        width: 24px;
+        height: 24px;
+        color: #fff;
+      }
+
+      /* 删除按钮样式 */
+      .delete-message-btn {
+        position: absolute;
+        top: 28px;
+        background-color: #2b2b2b;
+        border: 1px solid #939393;
+        border-radius: 999px;
+        padding: 10px;
+        color: #e2e2e2;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        z-index: 15;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-left: 42px;
+        margin-right: 42px;
+      }
+
+      .delete-message-btn:hover {
+        background-color: #3a3a3a;
+        border-color: #d2bc95;
+      }
+
+      .delete-message-btn.show {
+        opacity: 1;
+      }
+
+      .delete-message-btn svg {
+        width: 14px;
+        height: 14px;
+        stroke: #e2e2e2;
+        stroke-width: 2;
+      }
+      .typing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 9px 5px 5px 5px;
+        border-radius: 18px;
+        align-self: flex-start;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .typing-dot {
+        width: 6px;
+        height: 6px;
+        background: rgba(0, 0, 0, 1);
+        border-radius: 50%;
+        animation: typingBounce 1s infinite;
+      }
+
+      .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes typingBounce {
+        0%,
+        80%,
+        100% {
+          transform: translateY(0);
+          opacity: 0.7;
+        }
+        40% {
+          transform: translateY(-8px);
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      /* 表情包面板样式 */
+      .sticker-panel {
+        position: absolute;
+        bottom: 64px;
+        right: -1px; /* 右对齐 */
+        left: auto; /* 取消左对齐 */
+        width: 80%;
+        max-width: 400px; /* 固定宽度,不占满 */
+        background-color: #2b2b2b;
+        border: 1px solid #939393;
+        border-radius: 0 25px 0 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        max-height: 400px;
+        min-height: 200px; /* 添加最小高度避免重叠 */
+        display: none;
+        flex-direction: column;
+        z-index: 1000;
+        padding: 6px;
+        justify-content: space-between;
+      }
+
+      .sticker-panel.show {
+        display: flex;
+      }
+
+      /* 面板的小尾巴(指向表情按钮) */
+      .sticker-panel::after {
+        content: '';
+        position: absolute;
+        bottom: -8.5px;
+        right: 125px; /* 根据表情按钮位置调整 */
+        width: 14px;
+        height: 14px;
+        background-color: #2b2b2b;
+        border-right: 1px solid #939393;
+        border-bottom: 1px solid #939393;
+        transform: rotate(45deg) skew(10deg, 10deg);
+      }
+
+      /* 分类标签页 */
+      .sticker-tabs {
+        display: flex;
+        gap: 0px;
+        padding: 6px;
+        overflow-x: auto;
+        flex-shrink: 0;
+        -webkit-mask-image: linear-gradient(
+          to right,
+          transparent 0%,
+          /* 顶部完全透明 */ black 6px,
+          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),
+          /* 底部向上 px 处保持完全不透明 */ transparent 100%
+        );
+        mask-image: linear-gradient(
+          to right,
+          transparent 0,
+          /* 顶部完全透明 */ black 6px,
+          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),
+          transparent 100%
+        );
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      .sticker-tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .sticker-tab {
+        padding: 6px 12px;
+        /* background-color: #1a1a1a;*/
+        color: #999;
+        border-bottom: 2px solid #444;
+        cursor: pointer;
+        white-space: nowrap;
+        font-size: 13px;
+        transition: all 0.2s;
+      }
+
+      .sticker-tab:hover {
+        background-color: #333;
+      }
+
+      .sticker-tab.active {
+        /*background-color: #d2bc95;*/
+        color: #fff;
+        border-color: #d2bc95;
+      }
+
+      /* 表情网格 */
+      .sticker-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+        gap: 8px;
+        padding: 6px;
+        flex: 1;
+        grid-auto-flow: row;
+        height: max-content;
+        overflow: visible;
+      }
+      .sticker-grid-container {
+        overflow-y: scroll;
+        height: 100%;
+        margin: 6px 6px 0 0;
+        -webkit-mask-image: linear-gradient(
+          to bottom,
+          transparent 0%,
+          /* 顶部完全透明 */ black 6px,
+          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),
+          /* 底部向上 px 处保持完全不透明 */ transparent 100%
+        );
+        mask-image: linear-gradient(
+          to bottom,
+          transparent 0,
+          /* 顶部完全透明 */ black 6px,
+          /* 经过 px 过渡到完全不透明 */ black calc(100% - 6px),
+          transparent 100%
+        );
+      }
+
+      .sticker-item {
+        aspect-ratio: 1;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        cursor: pointer;
+        overflow: hidden;
+        background-color: #1a1a1a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        position: relative;
+      }
+
+      .sticker-item:hover {
+        border-color: #d2bc95;
+        transform: scale(1.05);
+      }
+
+      .sticker-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .sticker-item .sticker-name {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        font-size: 10px;
+        padding: 2px;
+        text-align: center;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      .sticker-item:hover .sticker-name {
+        opacity: 1;
+      }
+
+      /* 管理项样式(像表情包一样显示在网格中) */
+      .sticker-action-item {
+        aspect-ratio: 1;
+        border: 2px dashed #444;
+        border-radius: 8px;
+        cursor: pointer;
+        background-color: #1a1a1a;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        position: relative;
+        gap: 4px;
+      }
+
+      .sticker-action-item:hover {
+        border-color: #d2bc95;
+        transform: scale(1.05);
+        background-color: #2a2a2a;
+      }
+
+      .sticker-action-item svg {
+        width: 30px;
+        height: 30px;
+        fill: none;
+        stroke: #999;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .sticker-action-item:hover svg {
+        stroke: #d2bc95;
+      }
+
+      .sticker-action-item .action-label {
+        color: #999;
+        font-size: 10px;
+        text-align: center;
+      }
+
+      .sticker-action-item:hover .action-label {
+        color: #d2bc95;
+      }
+
+      /* 弹窗样式 */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+      }
+
+      .modal-overlay.show {
+        display: flex;
+      }
+
+      .modal {
+        background-color: #2b2b2b;
+        border: 1px solid #444;
+        border-radius: 0 25px 0 0;
+        padding: 20px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-header {
+        font-size: 16px;
+        font-weight: bold;
+        color: #e2e2e2;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #444;
+      }
+
+      .modal-body {
+        margin-bottom: 15px;
+      }
+
+      .modal-input {
+        width: 100%;
+        background-color: #1a1a1a;
+        border: 1px solid #444;
+        border-radius: 5px;
+        padding: 10px;
+        color: #e2e2e2;
+        font-size: 13px;
+        margin-bottom: 10px;
+        outline: none;
+      }
+
+      .modal-input:focus {
+        border-color: #d2bc95;
+      }
+
+      .modal-textarea {
+        min-height: 150px;
+        resize: vertical;
+        font-family: monospace;
+      }
+
+      .modal-footer {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+
+      .modal-btn {
+        padding: 8px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 13px;
+        border: none;
+        transition: all 0.2s;
+        background-color: #e2e2e2;
+      }
+      .modal-btn:hover {
+        opacity: 0.8;
+      }
+
+      .modal-btn-primary {
+        transition: all 0.2s;
+        background-color: #d2bc95;
+        color: #000;
+      }
+
+      .modal-btn-primary:hover {
+        opacity: 0.8;
+      }
+
+      .modal-btn-secondary {
+        transition: all 0.2s;
+        background-color: #1a1a1a;
+        color: #e2e2e2;
+        border: 1px solid #444;
+      }
+
+      .modal-btn-secondary:hover {
+        background-color: #333;
+      }
+
+      /* 右键菜单 */
+      .context-menu {
+        position: fixed;
+        background-color: #2b2b2b;
+        border: 1px solid #939393;
+        border-radius: 5px;
+        padding: 5px 0;
+        display: none;
+        z-index: 3000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      }
+
+      .context-menu.show {
+        display: block;
+      }
+
+      .context-menu-item {
+        padding: 8px 15px;
+        color: #e2e2e2;
+        cursor: pointer;
+        font-size: 13px;
+        transition: background-color 0.2s;
+      }
+
+      .context-menu-item:hover {
+        background-color: #1a1a1a;
+      }
+
+      .context-menu-divider {
+        height: 1px;
+        background-color: #444;
+        margin: 5px 0;
+      }
+
+      /* 滚动条样式 */
+      .sticker-grid-container::-webkit-scrollbar,
+      .modal::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      .sticker-grid-container::-webkit-scrollbar-track,
+      .modal::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .sticker-grid-container::-webkit-scrollbar-thumb,
+      .modal::-webkit-scrollbar-thumb {
+        background: #444;
+      }
+
+      .sticker-grid-container::-webkit-scrollbar-thumb:hover,
+      .modal::-webkit-scrollbar-thumb:hover {
+        background: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-container">
+      <div class="chat-container">
+        <div class="chat-header">
+          <div class="character-info">
+            <div class="character-name">那刻夏</div>
+            <div class="character-description">那我问你</div>
+          </div>
+        </div>
+        <!-- 这里的 $1 内容将通过 JS 动态注入 -->
+        <div class="chat-messages"></div>
+      </div>
+      <div class="bubble-wrapper">
+        <div class="bubble-shadow"></div>
+        <div class="chat-input">
+          <input type="text" class="message-input" placeholder="" />
+          <button class="emoji-btn">
+            <svg class="icon-smiley" viewBox="0 0 24 24">
+              <ellipse class="eye" cx="8.5" cy="9.5" rx="1.5" ry="1.5"></ellipse>
+              <ellipse class="eye" cx="15.5" cy="9.5" rx="1.5" ry="1.5"></ellipse>
+
+              <path class="mouth" d="M 8 14 A 4 3 0 0 0 16 14 Z"></path>
+            </svg>
+          </button>
+          <button class="send-button">发送</button>
+          <!-- 表情包面板 -->
+          <div class="sticker-panel" id="stickerPanel">
+            <div class="sticker-grid-container">
+              <div class="sticker-grid" id="stickerGrid"></div>
+            </div>
+            <div class="sticker-tabs" id="stickerTabs"></div>
+          </div>
+
+          <!-- 通用弹窗 -->
+          <div class="modal-overlay" id="modalOverlay">
+            <div class="modal">
+              <div class="modal-header" id="modalHeader">标题</div>
+              <div class="modal-body" id="modalBody"></div>
+              <div class="modal-footer" id="modalFooter"></div>
+            </div>
+          </div>
+
+          <!-- 右键菜单 -->
+          <div class="context-menu" id="contextMenu"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        // --- 核心：从全局变量获取数据 ---
+        const params = window.TH_REMOTE_PARAMS || {};
+        const rawContent = params.content || '';
+        // 优先使用传入的宏变量，回退到默认值
+        const charNameParam = params.charName || '那刻夏';
+        const userNameParam = params.userName || '你';
+        
+        // 将内容注入到容器中
+        const chatMessagesDiv = document.querySelector('.chat-messages');
+        if(chatMessagesDiv) {
+            chatMessagesDiv.innerHTML = rawContent;
+        }
+
+        // 修改角色名显示
+        const charNameDiv = document.querySelector('.character-name');
+        if(charNameDiv) {
+            charNameDiv.textContent = charNameParam;
+        }
+        
+        const sendButton = document.querySelector('.send-button');
+        const input = document.querySelector('.message-input');
+
+        // 加载保存的角色头像URL
+        const savedAvatarUrl = localStorage.getItem('srMsg_charAvatar');
+        if (savedAvatarUrl) {
+          document.querySelectorAll('.char_avatar').forEach(av => {
+            av.style.backgroundImage = `url('${savedAvatarUrl}')`;
+          });
+        }
+
+        // 检查并提供 substitudeMacros 函数的fallback
+        // 在远程模式下，我们主要依赖传入的params，但保留这个函数以兼容旧逻辑
+        if (typeof substitudeMacros !== 'function') {
+          window.substitudeMacros = function (str) {
+            if (str === '{{char}}') return charNameParam;
+            if (str === '{{user}}') return userNameParam;
+            return str;
+          };
+        }
+        // 检查其他可能不存在的SillyTavern函数
+        if (typeof getChatMessages !== 'function') {
+          window.getChatMessages = function () {
+            return [];
+          };
+        }
+        if (typeof getCurrentMessageId !== 'function') {
+          window.getCurrentMessageId = function () {
+            return 0;
+          };
+        }
+        if (typeof setChatMessages !== 'function') {
+          window.setChatMessages = function () {
+            return Promise.resolve();
+          };
+        }
+        if (typeof generate !== 'function') {
+          window.generate = function () {
+            return Promise.reject(new Error('generate函数仅在SillyTavern环境中可用'));
+          };
+        }
+
+        // ==================== 表情包管理系统 ====================\n        class StickerManager {
+          constructor() {
+            this.storageKey = 'srMsg_stickers';
+            this.data = this.loadData();
+            this.currentCategory = this.data.categories[0]?.id || 'default';
+          }
+
+          // 加载数据
+          loadData() {
+            const saved = localStorage.getItem(this.storageKey);
+            if (saved) {
+              try {
+                return JSON.parse(saved);
+              } catch (e) {
+                console.error('加载表情包数据失败:', e);
+              }
+            }
+            return this.getDefaultData();
+          }
+
+          // 默认数据
+          getDefaultData() {
+            return {
+              categories: [
+                {
+                  id: 'default',
+                  name: '默认表情',
+                  stickers: [
+                    { name: '什么事', url: 'https://files.catbox.moe/glsjvq.png', character: '那刻夏' },
+                    { name: '求摸摸', url: 'https://files.catbox.moe/6xpnbg.png' },
+                    { name: '疑惑', url: 'https://files.catbox.moe/ghb4h3.png' },
+                    { name: '我没事', url: 'https://files.catbox.moe/5smgiy.png', character: '那刻夏' },
+                    { name: '看穿', url: 'https://files.catbox.moe/wanz16.png', character: '那刻夏' },
+                    { name: '来吧', url: 'https://files.catbox.moe/23it4z.png', character: '那刻夏' },
+                    { name: '摇人', url: 'https://files.catbox.moe/sf019j.png', character: '开拓者（{{user}}）' },
+                    { name: '诶嘿', url: 'https://files.catbox.moe/c34k3q.png' },
+                    { name: '开心', url: 'https://files.catbox.moe/6pynj2.png' },
+                    { name: '翻垃圾桶', url: 'https://files.catbox.moe/zymxio.png' },
+                  ],
+                },
+                {
+                  id: 'pom',
+                  name: '帕姆',
+                  stickers: [
+                    { name: '嗨', url: 'https://files.catbox.moe/0muuzi.png', character: '帕姆' },
+                    { name: '点赞', url: 'https://files.catbox.moe/0d6421.png', character: '帕姆' },
+                    { name: '收到', url: 'https://files.catbox.moe/0jp48a.png', character: '帕姆' },
+                    { name: '哭哭', url: 'https://files.catbox.moe/dtjee8.png', character: '帕姆' },
+                    { name: '疑惑', url: 'https://files.catbox.moe/c60ar0.png', character: '帕姆' },
+                    { name: '震惊', url: 'https://files.catbox.moe/qrdgxc.png', character: '帕姆' },
+                    { name: '比心', url: 'https://files.catbox.moe/1p5ve3.png', character: '帕姆' },
+                    { name: '不可以', url: 'https://files.catbox.moe/fccc79.png', character: '帕姆' },
+                    { name: '注意', url: 'https://files.catbox.moe/53yn4j.png', character: '帕姆' },
+                    { name: '礼物', url: 'https://files.catbox.moe/eutes5.png', character: '帕姆' },
+                    { name: '干饭', url: 'https://files.catbox.moe/19gf1p.png', character: '帕姆' },
+                    { name: '好耶', url: 'https://files.catbox.moe/iy1q9v.png', character: '帕姆' },
+                    { name: '出金', url: 'https://files.catbox.moe/e25erx.png', character: '帕姆' },
+                    { name: '加班', url: 'https://files.catbox.moe/dh9aj9.png', character: '帕姆' },
+                    { name: '好奇', url: 'https://files.catbox.moe/stkchp.png', character: '帕姆' },
+                    { name: '害羞', url: 'https://files.catbox.moe/2zmfqw.png', character: '帕姆' },
+                  ],
+                },
+              ],
+            };
+          }
+
+          // 保存数据
+          saveData() {
+            localStorage.setItem(this.storageKey, JSON.stringify(this.data));
+          }
+
+          // 获取所有分类
+          getCategories() {
+            return this.data.categories;
+          }
+
+          // 获取当前分类
+          getCurrentCategory() {
+            return this.data.categories.find(c => c.id === this.currentCategory);
+          }
+
+          // 切换分类
+          switchCategory(categoryId) {
+            this.currentCategory = categoryId;
+          }
+
+          // 添加分类
+          addCategory(name) {
+            const id = 'cat_' + Date.now();
+            this.data.categories.push({
+              id,
+              name,
+              stickers: [],
+            });
+            this.saveData();
+            return id;
+          }
+
+          // 重命名分类
+          renameCategory(categoryId, newName) {
+            const cat = this.data.categories.find(c => c.id === categoryId);
+            if (cat) {
+              cat.name = newName;
+              this.saveData();
+            }
+          }
+
+          // 删除分类
+          deleteCategory(categoryId) {
+            if (categoryId === 'default') return false; // 不能删除默认分类
+            const index = this.data.categories.findIndex(c => c.id === categoryId);
+            if (index > -1) {
+              this.data.categories.splice(index, 1);
+              if (this.currentCategory === categoryId) {
+                this.currentCategory = this.data.categories[0]?.id || 'default';
+              }
+              this.saveData();
+              return true;
+            }
+            return false;
+          }
+
+          // 添加表情
+          addSticker(categoryId, name, url, character = '') {
+            const cat = this.data.categories.find(c => c.id === categoryId);
+            if (cat) {
+              const sticker = { name, url };
+              if (character) sticker.character = character;
+              cat.stickers.push(sticker);
+              this.saveData();
+              return true;
+            }
+            return false;
+          }
+
+          // 修改表情
+          updateSticker(categoryId, stickerIndex, name, url, character = '') {
+            const cat = this.data.categories.find(c => c.id === categoryId);
+            if (cat && cat.stickers[stickerIndex]) {
+              cat.stickers[stickerIndex].name = name;
+              cat.stickers[stickerIndex].url = url;
+              if (character) {
+                cat.stickers[stickerIndex].character = character;
+              } else {
+                delete cat.stickers[stickerIndex].character;
+              }
+              this.saveData();
+              return true;
+            }
+            return false;
+          }
+
+          // 删除表情
+          deleteSticker(categoryId, stickerIndex) {
+            const cat = this.data.categories.find(c => c.id === categoryId);
+            if (cat && cat.stickers[stickerIndex]) {
+              cat.stickers.splice(stickerIndex, 1);
+              this.saveData();
+              return true;
+            }
+            return false;
+          }
+
+          // 批量导入
+          batchImport(categoryId, text) {
+            const cat = this.data.categories.find(c => c.id === categoryId);
+            if (!cat) return 0;
+
+            const lines = text.split('\n').filter(l => l.trim());
+            let count = 0;
+
+            for (const line of lines) {
+              // 支持两种格式: "说明|角色|URL" 或 "说明|URL"
+              const parts = line.split('|').map(p => p.trim());
+
+              if (parts.length >= 2) {
+                const name = parts[0];
+                let character = '';
+                let url = '';
+
+                if (parts.length === 3) {
+                  // 格式: 说明|角色|URL
+                  character = parts[1];
+                  url = parts[2];
+                } else {
+                  // 格式: 说明|URL
+                  url = parts[1];
+                }
+
+                // 验证URL格式
+                if (url && (url.startsWith('http') || url.match(/^[a-zA-Z0-9_\-]+\.(webp|png|jpg|jpeg|gif)$/))) {
+                  const sticker = { name, url };
+                  if (character) sticker.character = character;
+                  cat.stickers.push(sticker);
+                  count++;
+                }
+              }
+            }
+
+            this.saveData();
+            return count;
+          }
+        }
+
+        // 创建表情管理器实例
+        const stickerMgr = new StickerManager();
+
+        // UI管理类
+        class StickerUI {
+          constructor(manager) {
+            this.manager = manager;
+            this.panel = document.getElementById('stickerPanel');
+            this.tabs = document.getElementById('stickerTabs');
+            this.grid = document.getElementById('stickerGrid');
+            this.modal = document.getElementById('modalOverlay');
+            this.contextMenu = document.getElementById('contextMenu');
+
+            this.init();
+          }
+
+          init() {
+            this.emojiBtn = document.querySelector('.emoji-btn');
+
+            // 表情按钮点击
+            this.emojiBtn.addEventListener('click', e => {
+              e.stopPropagation();
+              this.togglePanel();
+            });
+
+            // 点击外部关闭面板
+            document.addEventListener('click', e => {
+              // 检查是否点击在modal内部
+              const clickedInModal = e.target.closest('.modal-overlay');
+              const clickedInContextMenu = e.target.closest('.context-menu');
+
+              // 只有点击外部且不在modal/右键菜单中时才关闭面板
+              if (
+                !this.panel.contains(e.target) &&
+                !e.target.closest('.emoji-btn') &&
+                !clickedInModal &&
+                !clickedInContextMenu
+              ) {
+                this.hidePanel();
+              }
+
+              // 只有点击modal/右键菜单外部才关闭右键菜单
+              if (!clickedInContextMenu && !clickedInModal) {
+                this.hideContextMenu();
+              }
+            });
+
+            // 初始渲染
+            this.render();
+          }
+
+          togglePanel() {
+            const isShowing = this.panel.classList.toggle('show');
+            // 切换按钮激活状态
+            if (isShowing) {
+              this.emojiBtn.classList.add('active');
+            } else {
+              this.emojiBtn.classList.remove('active');
+            }
+          }
+
+          hidePanel() {
+            this.panel.classList.remove('show');
+            this.emojiBtn.classList.remove('active');
+          }
+
+          hideModal() {
+            this.modal.classList.remove('show');
+            // 弹窗关闭后不隐藏面板,只需确保面板仍然显示
+          }
+
+          hideContextMenu() {
+            this.contextMenu.classList.remove('show');
+          }
+
+          render() {
+            this.renderTabs();
+            this.renderStickers();
+          }
+
+          renderTabs() {
+            const categories = this.manager.getCategories();
+            this.tabs.innerHTML = categories
+              .map(
+                cat => `
+              <div class="sticker-tab ${cat.id === this.manager.currentCategory ? 'active' : ''}"
+                   data-category="${cat.id}"
+                   oncontextmenu="return false;">
+                ${cat.name}
+              </div>
+            `,
+              )
+              .join('');
+
+            // 标签点击事件
+            this.tabs.querySelectorAll('.sticker-tab').forEach(tab => {
+              tab.addEventListener('click', e => {
+                e.stopPropagation(); // 阻止冒泡,点击分类不关闭面板
+                this.manager.switchCategory(tab.dataset.category);
+                this.render();
+              });
+
+              // 右键菜单
+              tab.addEventListener('contextmenu', e => {
+                e.preventDefault();
+                e.stopPropagation(); // 阻止冒泡
+                this.showCategoryContextMenu(e, tab.dataset.category);
+              });
+            });
+          }
+
+          renderStickers() {
+            const cat = this.manager.getCurrentCategory();
+
+            // 构建表情网格HTML
+            let gridHTML = '';
+
+            if (cat && cat.stickers.length > 0) {
+              gridHTML = cat.stickers
+                .map((sticker, index) => {
+                  const imgSrc = sticker.url.startsWith('http')
+                    ? sticker.url
+                    : `https://files.catbox.moe/${sticker.url}`;
+                  return `
+                    <div class="sticker-item" data-index="${index}" oncontextmenu="return false;">
+                      <img src="${imgSrc}" alt="${sticker.name}" />
+                      <div class="sticker-name">${sticker.name}</div>
+                    </div>
+                  `;
+                })
+                .join('');
+            }
+
+            // 添加三个管理项(像表情包一样)
+            gridHTML += `
+              <div class="sticker-action-item" data-action="add">
+                <svg viewBox="0 0 24 24">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="12" y1="8" x2="12" y2="16"></line>
+                  <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+                <div class="action-label">添加表情</div>
+              </div>
+              <div class="sticker-action-item" data-action="batch">
+                <svg viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="12" y1="13" x2="12" y2="18"></line>
+                  <line x1="9" y1="15.5" x2="15" y2="15.5"></line>
+                </svg>
+                <div class="action-label">批量导入</div>
+              </div>
+              <div class="sticker-action-item" data-action="manage">
+                <svg viewBox="0 0 24 24">
+                  <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <div class="action-label">管理分类</div>
+              </div>
+            `;
+
+            this.grid.innerHTML = gridHTML;
+
+            // 表情点击事件
+            this.grid.querySelectorAll('.sticker-item').forEach(item => {
+              let stickerLongPressTimer = null;
+              let stickerLongPressed = false;
+
+              // 长按开始
+              const startStickerLongPress = e => {
+                stickerLongPressed = false;
+                stickerLongPressTimer = setTimeout(() => {
+                  stickerLongPressed = true;
+                  const index = parseInt(item.dataset.index);
+                  // 将触摸事件转换为类似鼠标事件的格式
+                  const touch = e.touches ? e.touches[0] : e;
+                  const simulatedEvent = {
+                    pageX: touch.pageX || touch.clientX,
+                    pageY: touch.pageY || touch.clientY,
+                    preventDefault: () => {},
+                    stopPropagation: () => {},
+                  };
+                  this.showStickerContextMenu(simulatedEvent, cat.id, index);
+                }, 500);
+              };
+
+              // 长按结束
+              const endStickerLongPress = () => {
+                if (stickerLongPressTimer) {
+                  clearTimeout(stickerLongPressTimer);
+                  stickerLongPressTimer = null;
+                }
+              };
+
+              // 点击事件
+              item.addEventListener('click', e => {
+                // 如果触发了长按,不执行点击
+                if (stickerLongPressed) {
+                  e.preventDefault();
+                  return;
+                }
+                const index = parseInt(item.dataset.index);
+                this.insertSticker(cat.stickers[index]);
+                this.hidePanel(); // 插入表情后关闭面板
+              });
+
+              // 右键菜单
+              item.addEventListener('contextmenu', e => {
+                e.preventDefault();
+                e.stopPropagation(); // 阻止冒泡
+                const index = parseInt(item.dataset.index);
+                this.showStickerContextMenu(e, cat.id, index);
+              });
+
+              // 触摸事件(移动端长按支持)
+              item.addEventListener('touchstart', startStickerLongPress);
+              item.addEventListener('touchend', endStickerLongPress);
+              item.addEventListener('touchcancel', endStickerLongPress);
+            });
+
+            // 管理项点击事件
+            this.grid.querySelectorAll('.sticker-action-item').forEach(item => {
+              item.addEventListener('click', e => {
+                e.stopPropagation();
+                const action = item.dataset.action;
+                if (action === 'add') {
+                  this.showAddSticker();
+                } else if (action === 'batch') {
+                  this.showBatchImport();
+                } else if (action === 'manage') {
+                  this.showManageCategory();
+                }
+              });
+            });
+          }
+
+          insertSticker(sticker) {
+            const input = document.querySelector('.message-input');
+            const stickerTag = sticker.url.startsWith('http')
+              ? `<sticker>${sticker.url}</sticker>`
+              : `<sticker>${sticker.url.split('/').pop()}</sticker>`;
+
+            input.value += stickerTag;
+            input.focus();
+            // 不在这里hidePanel,由click事件处理
+          }
+
+          showAddSticker() {
+            const cat = this.manager.getCurrentCategory();
+            document.getElementById('modalHeader').textContent = '添加表情';
+            document.getElementById('modalBody').innerHTML = `
+              <input type="text" class="modal-input" id="stickerName" placeholder="表情名称" />
+              <input type="text" class="modal-input" id="stickerCharacter" placeholder="角色名称 (可选)" />
+              <input type="text" class="modal-input" id="stickerUrl" placeholder="图片URL (支持完整链接或catbox.moe文件名)" />
+            `;
+            document.getElementById('modalFooter').innerHTML = `
+              <button class="modal-btn modal-btn-secondary" onclick="stickerUI.hideModal()">取消</button>
+              <button class="modal-btn modal-btn-primary" id="confirmAddSticker">确定</button>
+            `;
+
+            this.modal.classList.add('show');
+
+            document.getElementById('confirmAddSticker').addEventListener('click', () => {
+              const name = document.getElementById('stickerName').value.trim();
+              const character = document.getElementById('stickerCharacter').value.trim();
+              const url = document.getElementById('stickerUrl').value.trim();
+
+              if (name && url) {
+                this.manager.addSticker(cat.id, name, url, character);
+                this.render();
+                this.hideModal();
+              } else {
+                alert('请填写表情名称和URL');
+              }
+            });
+          }
+
+          showEditSticker(categoryId, stickerIndex) {
+            const cat = this.manager.data.categories.find(c => c.id === categoryId);
+            if (!cat || !cat.stickers[stickerIndex]) return;
+
+            const sticker = cat.stickers[stickerIndex];
+            document.getElementById('modalHeader').textContent = '修改表情';
+            document.getElementById('modalBody').innerHTML = `
+              <input type="text" class="modal-input" id="stickerName" placeholder="表情名称" value="${sticker.name}" />
+              <input type="text" class="modal-input" id="stickerCharacter" placeholder="角色名称 (可选)" value="${
+                sticker.character || ''
+              }" />
+              <input type="text" class="modal-input" id="stickerUrl" placeholder="图片URL" value="${sticker.url}" />
+            `;
+            document.getElementById('modalFooter').innerHTML = `
+              <button class="modal-btn modal-btn-secondary" onclick="stickerUI.hideModal()">取消</button>
+              <button class="modal-btn modal-btn-primary" id="confirmEditSticker">确定</button>
+            `;
+
+            this.modal.classList.add('show');
+
+            document.getElementById('confirmEditSticker').addEventListener('click', () => {
+              const name = document.getElementById('stickerName').value.trim();
+              const character = document.getElementById('stickerCharacter').value.trim();
+              const url = document.getElementById('stickerUrl').value.trim();
+
+              if (name && url) {
+                this.manager.updateSticker(categoryId, stickerIndex, name, url, character);
+                this.render();
+                this.hideModal();
+              } else {
+                alert('请填写表情名称和URL');
+              }
+            });
+          }
+
+          showBatchImport() {
+            const cat = this.manager.getCurrentCategory();
+            document.getElementById('modalHeader').textContent = '批量导入表情';
+            document.getElementById('modalBody').innerHTML = `
+              <div style="color:#999;font-size:12px;margin-bottom:10px;">
+                每行一个表情，使用竖线(|)分隔，支持两种格式：<br/>
+                1. 说明|角色|URL (例如：什么事|那刻夏|https://files.catbox.moe/glsjvq.png)<br/>
+                2. 说明|URL (例如：求摸摸|https://files.catbox.moe/6xpnbg.png)
+              </div>
+              <textarea class="modal-input modal-textarea" id="batchText" placeholder="什么事|那刻夏|https://files.catbox.moe/glsjvq.png\n求摸摸|https://files.catbox.moe/6xpnbg.png\n疑惑|https://files.catbox.moe/ghb4h3.png"></textarea>
+            `;
+            document.getElementById('modalFooter').innerHTML = `
+              <button class="modal-btn modal-btn-secondary" onclick="stickerUI.hideModal()">取消</button>
+              <button class="modal-btn modal-btn-primary" id="confirmBatchImport">导入</button>
+            `;
+
+            this.modal.classList.add('show');
+
+            document.getElementById('confirmBatchImport').addEventListener('click', () => {
+              const text = document.getElementById('batchText').value.trim();
+              if (text) {
+                const count = this.manager.batchImport(cat.id, text);
+                alert(`成功导入 ${count} 个表情`);
+                this.render();
+                this.hideModal();
+              }
+            });
+          }
+
+          showManageCategory() {
+            const categories = this.manager.getCategories();
+            document.getElementById('modalHeader').textContent = '管理分类';
+            document.getElementById('modalBody').innerHTML = `
+              <div style="max-height:300px;overflow-y:auto;">
+                ${categories
+                  .map(
+                    cat => `
+                  <div style="display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid #444;">
+                    <span style="flex:1;color:#e2e2e2;">${cat.name}</span>
+                    <button class="modal-btn rename-cat-btn" style="width: 66px;padding: 8px 13.5px;" data-cat-id="${
+                      cat.id
+                    }">重命名</button>
+                    ${
+                      cat.id !== 'default'
+                        ? `<button class="modal-btn delete-cat-btn" style="width: 66px;" data-cat-id="${cat.id}">删除</button>`
+                        : ''
+                    }
+                  </div>
+                `,
+                  )
+                  .join('')}
+              </div>
+              <button class="modal-btn modal-btn-primary" style="width:100%;margin-top:10px;" id="addCategoryBtn">+ 新建分类</button>
+            `;
+            document.getElementById('modalFooter').innerHTML = `
+              <button class="modal-btn modal-btn-secondary" id="closeCategoryModal">关闭</button>
+            `;
+
+            this.modal.classList.add('show');
+
+            // 使用setTimeout确保DOM完全渲染后再绑定事件
+            setTimeout(() => {
+              // 新建分类按钮事件
+              const addBtn = document.getElementById('addCategoryBtn');
+              if (addBtn) {
+                addBtn.addEventListener('click', e => {
+                  e.stopPropagation();
+                  const name = prompt('输入分类名称:');
+                  if (name && name.trim()) {
+                    this.manager.addCategory(name.trim());
+                    this.showManageCategory();
+                    this.render();
+                  }
+                });
+              }
+
+              // 重命名按钮事件
+              document.querySelectorAll('.rename-cat-btn').forEach(btn => {
+                btn.addEventListener('click', e => {
+                  e.stopPropagation();
+                  const catId = btn.dataset.catId;
+                  this.renameCategory(catId);
+                });
+              });
+
+              // 删除按钮事件
+              document.querySelectorAll('.delete-cat-btn').forEach(btn => {
+                btn.addEventListener('click', e => {
+                  e.stopPropagation();
+                  const catId = btn.dataset.catId;
+                  this.deleteCategory(catId);
+                });
+              });
+
+              // 关闭按钮事件
+              const closeBtn = document.getElementById('closeCategoryModal');
+              if (closeBtn) {
+                closeBtn.addEventListener('click', e => {
+                  e.stopPropagation();
+                  this.hideModal();
+                });
+              }
+            }, 0);
+          }
+
+          renameCategory(categoryId) {
+            const cat = this.manager.getCategories().find(c => c.id === categoryId);
+            if (cat) {
+              const newName = prompt('重命名分类:', cat.name);
+              if (newName && newName.trim()) {
+                this.manager.renameCategory(categoryId, newName.trim());
+                this.showManageCategory();
+                this.render();
+              }
+            }
+          }
+
+          deleteCategory(categoryId) {
+            if (confirm('确定删除此分类？分类内的所有表情也会被删除。')) {
+              this.manager.deleteCategory(categoryId);
+              this.showManageCategory();
+              this.render();
+            }
+          }
+
+          showStickerContextMenu(e, categoryId, stickerIndex) {
+            this.contextMenu.innerHTML = `
+              <div class="context-menu-item" data-action="edit">修改表情</div>
+              <div class="context-menu-divider"></div>
+              <div class="context-menu-item" data-action="delete">删除表情</div>
+            `;
+            this.contextMenu.style.left = e.pageX + 'px';
+            this.contextMenu.style.top = e.pageY + 'px';
+            this.contextMenu.classList.add('show');
+
+            this.contextMenu.querySelector('[data-action="edit"]').addEventListener('click', e => {
+              e.stopPropagation(); // 阻止事件冒泡
+              this.hideContextMenu();
+              this.showEditSticker(categoryId, stickerIndex);
+            });
+
+            this.contextMenu.querySelector('[data-action="delete"]').addEventListener('click', e => {
+              e.stopPropagation(); // 阻止事件冒泡
+              this.hideContextMenu();
+              if (confirm('确定删除此表情？')) {
+                this.manager.deleteSticker(categoryId, stickerIndex);
+                this.render();
+              }
+            });
+          }
+
+          showCategoryContextMenu(e, categoryId) {
+            if (categoryId === 'default') return; // 默认分类不显示右键菜单
+
+            this.contextMenu.innerHTML = `
+              <div class="context-menu-item" data-action="rename">重命名</div>
+              <div class="context-menu-divider"></div>
+              <div class="context-menu-item" data-action="delete">删除分类</div>
+            `;
+            this.contextMenu.style.left = e.pageX + 'px';
+            this.contextMenu.style.top = e.pageY + 'px';
+            this.contextMenu.classList.add('show');
+
+            this.contextMenu.querySelector('[data-action="rename"]').addEventListener('click', e => {
+              e.stopPropagation(); // 阻止事件冒泡
+              this.hideContextMenu();
+              this.renameCategory(categoryId);
+            });
+
+            this.contextMenu.querySelector('[data-action="delete"]').addEventListener('click', e => {
+              e.stopPropagation(); // 阻止事件冒泡
+              this.hideContextMenu();
+              this.deleteCategory(categoryId);
+            });
+          }
+        }
+
+        // 创建UI实例（暴露到全局以便在HTML onclick中使用）
+        window.stickerUI = new StickerUI(stickerMgr);
+
+        // renderStickers函数已在前面定义,这里不需要重复定义
+
+        // 动态获取 charName
+        const charName = charNameParam;
+        // Character configuration
+        const CHARACTER_CONFIG = {
+          user: {
+            name: userNameParam,
+            avatar: 'user_avatar',
+          },
+          char: {
+            name: charName,
+            avatar: 'char_avatar',
+          },
+        };
+
+        // 聊天记录存储
+        let lastRenderedMsgs = [];
+        // 根据消息长度计算打字延迟
+        function calculateTypingDelay(message) {
+          const text = message.replace(/<sticker>.*<\/sticker>/g, ''); // 忽略贴纸内容
+          const length = text.length;
+          // 每秒约10个字，基础延迟0.5秒，最长延迟4秒
+          return Math.min(500 + length * 100, 4000);
+        }
+        // 合并并去重，顺序保留
+        function mergeAndDedupMsgs(oldMsgs, newMsgs) {
+          const seen = new Set();
+          const result = [];
+          for (const msg of [...oldMsgs, ...newMsgs]) {
+            if (!seen.has(msg)) {
+              seen.add(msg);
+              result.push(msg);
+            }
+          }
+          return result;
+        }
+
+        // 处理表情包sticker标签为img (简化版,因为存储和渲染都用URL)
+        function renderStickers(content) {
+          // 1. 处理短文件名
+          content = content.replace(
+            /<sticker>([a-zA-Z0-9_\-]+\.(?:webp|png|jpg|jpeg|gif))<\/sticker>/g,
+            (match, filename) => {
+              return `<img class="emotion" src="https://files.catbox.moe/${filename}" />`;
+            },
+          );
+
+          // 2. 处理完整URL
+          content = content.replace(/<sticker>(https?:\/\/.+?)<\/sticker>/g, (match, url) => {
+            return `<img class="emotion" src="${url}" />`;
+          });
+
+          return content;
+        }
+
+        // 将<sticker>url</sticker>转换为<sticker>角色-说明</sticker>文字(仅用于发送给AI)
+        function convertStickersToText(content) {
+          return content.replace(/<sticker>(.+?)<\/sticker>/g, (match, url) => {
+            // 从stickerMgr查找URL对应的表情包
+            const categories = stickerMgr.getCategories();
+            for (const cat of categories) {
+              for (const sticker of cat.stickers) {
+                const stickerUrl = sticker.url.startsWith('http')
+                  ? sticker.url
+                  : `https://files.catbox.moe/${sticker.url}`;
+                const inputUrl = url.startsWith('http') ? url : `https://files.catbox.moe/${url}`;
+                if (stickerUrl === inputUrl) {
+                  // 找到了,转换为文字
+                  return sticker.character
+                    ? `<sticker>${sticker.character}-${sticker.name}</sticker>`
+                    : `<sticker>${sticker.name}</sticker>`;
+                }
+              }
+            }
+            // 找不到就保持原URL
+            return match;
+          });
+        }
+
+        // 渲染单条消息（保持原结构，支持 sticker/AI动画/重roll）
+        function createMessage(sender, message, type = 'text', animate = true, userMsgDivCb = null) {
+          const messageContainer = document.createElement('div');
+          messageContainer.className = sender === 'user' ? 'MessageFromMe' : 'MessageToMe';
+          if (animate) messageContainer.classList.add('chat-message-animate');
+          messageContainer.style.position = 'relative'; // 为删除按钮定位
+
+          const avatar = document.createElement('div');
+          avatar.className = CHARACTER_CONFIG[sender].avatar;
+          if (sender === 'user') avatar.style.position = 'relative';
+
+          const messageContent = document.createElement('div');
+          messageContent.className = 'NM-Container';
+          messageContent.classList.add(sender === 'user' ? 'Name-right' : 'Name-left');
+
+          const senderName = document.createElement('div');
+          senderName.className = 'SenderName';
+          senderName.textContent = CHARACTER_CONFIG[sender].name;
+
+          const messageBubble = document.createElement('div');
+          messageBubble.className = sender === 'user' ? 'MessageRight' : 'MessageLeft';
+
+          const MessageTxt = document.createElement('div');
+          MessageTxt.className = 'MessageTxt';
+
+          if (type === 'text') {
+            MessageTxt.innerHTML = renderStickers(message);
+          } else if (type === 'emotion') {
+            const emotionImg = document.createElement('img');
+            emotionImg.src = message;
+            emotionImg.className = 'emotion';
+            MessageTxt.appendChild(emotionImg);
+          }
+
+          messageBubble.appendChild(MessageTxt);
+          messageContent.appendChild(senderName);
+          messageContent.appendChild(messageBubble);
+          sender === 'char' ? messageContainer.appendChild(avatar) : null;
+          messageContainer.appendChild(messageContent);
+          sender === 'user' ? messageContainer.appendChild(avatar) : null;
+
+          // 用户消息头像加重roll交互
+          if (sender === 'user') {
+            avatar.addEventListener('click', function (e) {
+              e.stopPropagation();
+              if (avatar.querySelector('.reroll-overlay')) return;
+              const overlay = document.createElement('div');
+              overlay.className = 'reroll-overlay';
+              overlay.style.opacity = '0';
+              overlay.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.51 7M3 17a9 9 0 0 0 14.36 2.36"></path></svg>
+      `;
+              overlay.onclick = function (ev) {
+                ev.stopPropagation();
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.remove(), 300);
+                handleReroll(messageContainer, message);
+              };
+              avatar.appendChild(overlay);
+              setTimeout(() => {
+                overlay.style.opacity = '1';
+              }, 10);
+            });
+          }
+
+          // 角色头像长按修改头像URL功能
+          if (sender === 'char') {
+            let avatarLongPressTimer = null;
+            let avatarLongPressed = false;
+
+            const startAvatarLongPress = () => {
+              avatarLongPressed = false;
+              avatarLongPressTimer = setTimeout(() => {
+                avatarLongPressed = true;
+                const newAvatarUrl = prompt('请输入新的头像URL:', 'https://files.catbox.moe/qyewjd.png');
+                if (newAvatarUrl && newAvatarUrl.trim()) {
+                  // 更新所有角色头像
+                  document.querySelectorAll('.char_avatar').forEach(av => {
+                    av.style.backgroundImage = `url('${newAvatarUrl.trim()}')`;
+                  });
+                  // 保存到localStorage
+                  localStorage.setItem('srMsg_charAvatar', newAvatarUrl.trim());
+                }
+              }, 500);
+            };
+
+            const endAvatarLongPress = () => {
+              if (avatarLongPressTimer) {
+                clearTimeout(avatarLongPressTimer);
+                avatarLongPressTimer = null;
+              }
+            };\
+
+            avatar.addEventListener('mousedown', startAvatarLongPress);
+            avatar.addEventListener('mouseup', endAvatarLongPress);
+            avatar.addEventListener('mouseleave', endAvatarLongPress);
+            avatar.addEventListener('touchstart', startAvatarLongPress);
+            avatar.addEventListener('touchend', endAvatarLongPress);
+            avatar.addEventListener('touchcancel', endAvatarLongPress);
+          }
+
+          // 长按消息显示删除按钮
+          let messageLongPressTimer = null;
+
+          const startMessageLongPress = e => {
+            messageLongPressTimer = setTimeout(() => {
+              showDeleteButton(messageContainer, sender, message);
+            }, 500);
+          };
+
+          const endMessageLongPress = e => {
+            if (messageLongPressTimer) {
+              clearTimeout(messageLongPressTimer);
+              messageLongPressTimer = null;
+            }
+          };
+
+          messageBubble.addEventListener('mousedown', startMessageLongPress);
+          messageBubble.addEventListener('mouseup', endMessageLongPress);
+          messageBubble.addEventListener('mouseleave', endMessageLongPress);
+          messageBubble.addEventListener('touchstart', startMessageLongPress);
+          messageBubble.addEventListener('touchend', endMessageLongPress);
+          messageBubble.addEventListener('touchcancel', endMessageLongPress);
+
+          if (userMsgDivCb) userMsgDivCb(messageContainer);
+
+          return messageContainer;
+        }
+
+        // 显示删除按钮
+        function showDeleteButton(messageContainer, sender, message) {
+          // 移除已存在的删除按钮
+          document.querySelectorAll('.delete-message-btn').forEach(btn => btn.remove());
+
+          const deleteBtn = document.createElement('div');
+          deleteBtn.className = 'delete-message-btn';
+          deleteBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <line x1="10" y1="11" x2="10" y2="17"></line>
+              <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+          `;
+
+          deleteBtn.onclick = async e => {
+            e.stopPropagation();
+            if (confirm('确定删除这条消息？')) {
+              await handleDeleteMessage(messageContainer, sender, message);
+            }
+            deleteBtn.remove();
+          };
+
+          messageContainer.appendChild(deleteBtn);
+          setTimeout(() => deleteBtn.classList.add('show'), 10);
+
+          // 点击其他地方隐藏删除按钮(延迟500ms注册,避免立即触发)
+          const hideDeleteBtn = e => {
+            // 只有点击外部且不在消息容器内时才隐藏
+            if (!deleteBtn.contains(e.target) && !messageContainer.contains(e.target)) {
+              deleteBtn.classList.remove('show');
+              setTimeout(() => {
+                if (deleteBtn.parentNode) deleteBtn.remove();
+              }, 300);
+              document.removeEventListener('click', hideDeleteBtn);
+            }
+          };
+          setTimeout(() => document.addEventListener('click', hideDeleteBtn), 500);
+        }
+
+        // 处理删除消息
+        async function handleDeleteMessage(messageContainer, sender, message) {
+          // 从DOM移除
+          messageContainer.remove();
+
+          // 从lastRenderedMsgs删除
+          const prefix = sender === 'user' ? '[你]：' : `[${CHARACTER_CONFIG.char.name}]：`;
+          const targetLine = prefix + message;
+          const index = lastRenderedMsgs.indexOf(targetLine);
+          if (index > -1) {
+            lastRenderedMsgs.splice(index, 1);
+          }
+
+          // 写回srmsg
+          const merged = `<srmsg>\n${lastRenderedMsgs.join('\n')}\n</srmsg>`;
+          if (typeof setChatMessages === 'function') {
+            await setChatMessages([{ message_id: getCurrentMessageId(), message: merged }], { refresh: 'none' });
+            console.log('[DEBUG] 删除消息后写回:', merged);
+          }
+        }
+
+        function addSystemMessage(creditOrContent, isTransfer = true) {
+          const chatMessages = document.querySelector('.chat-messages');
+          const sysDiv = document.createElement('div');
+          sysDiv.className = 'sysmsg-container';
+          if (isTransfer) {
+            sysDiv.innerHTML = `<img src="https://files.catbox.moe/wzn5n2.png" class="msg-alert"><span class="sys-msg">已收到转账：${creditOrContent}信用点</span>`;
+          } else {
+            sysDiv.innerHTML = `<img src=\"https://files.catbox.moe/wzn5n2.png\" class=\"msg-alert\"><span class=\"sys-msg\">${creditOrContent}</span>`;
+          }
+          chatMessages.appendChild(sysDiv);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 修改 addMessage 和 renderOneSrMsg 支持系统消息
+        function addMessage(sender, message, type = 'text', animate = true, userMsgDivCb = null) {
+          const chatMessages = document.querySelector('.chat-messages');
+          // 检查是否为转账系统消息
+          const transferMatch = message.match(/^\[转账]：已收到转账：(\d+)信用点$/);
+          if (transferMatch) {
+            addSystemMessage(transferMatch[1], true);
+            return;
+          }
+          // 检查是否为通用系统消息
+          const sysMsgMatch = message.match(/^\[系统消息]：(.*)$/);
+          if (sysMsgMatch) {
+            addSystemMessage(sysMsgMatch[1], false);
+            return;
+          }
+          const messageElement = createMessage(sender, message, type, animate, userMsgDivCb);
+          chatMessages.appendChild(messageElement);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function renderOneSrMsg(line) {
+          // 系统消息优先判断
+          const transferMatch = line.match(/^\[转账]：已收到转账：(\d+)信用点$/);
+          if (transferMatch) {
+            addSystemMessage(transferMatch[1], true);
+            return;
+          }
+          const sysMsgMatch = line.match(/^\[系统消息]：(.*)$/);
+          if (sysMsgMatch) {
+            addSystemMessage(sysMsgMatch[1], false);
+            return;
+          }
+          let sender = 'char';
+          let content = line;
+          if (line.startsWith('[你]：')) {
+            sender = 'user';
+            content = line.replace(/^\[你\]：/, '');
+          } else if (line.startsWith(`[${CHARACTER_CONFIG.char.name}]：`)) {
+            sender = 'char';
+            content = line.replace(new RegExp(`\\[${CHARACTER_CONFIG.char.name}\\][:：]`), '');
+          }
+          if (sender === 'char') {
+            showTypingIndicator();
+            await new Promise(res => setTimeout(res, calculateTypingDelay(content)));
+            hideTypingIndicator();
+          }
+          addMessage(sender, content, 'text', true);
+          await new Promise(res => setTimeout(res, 500));
+        }
+
+        // 显示正在输入动画（以一条新的AI消息形式，保持原结构）
+        function showTypingIndicator() {
+          const chatMessages = document.querySelector('.chat-messages');
+          if (chatMessages.querySelector('.MessageToMe.typing-indicator-msg')) return;
+          const messageContainer = document.createElement('div');
+          messageContainer.className = 'MessageToMe typing-indicator-msg';
+
+          const avatar = document.createElement('div');
+          avatar.className = CHARACTER_CONFIG.char.avatar;
+
+          const messageContent = document.createElement('div');
+          messageContent.className = 'NM-Container Name-left';
+
+          const senderName = document.createElement('div');
+          senderName.className = 'SenderName';
+          senderName.textContent = CHARACTER_CONFIG.char.name;
+
+          const messageBubble = document.createElement('div');
+          messageBubble.className = 'MessageLeft';
+
+          const MessageTxt = document.createElement('div');
+          MessageTxt.className = 'MessageTxt';
+          MessageTxt.innerHTML = `
+    <div class="typing-indicator" id="typing-indicator">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    </div>
+  `;
+
+          messageBubble.appendChild(MessageTxt);
+          messageContent.appendChild(senderName);
+          messageContent.appendChild(messageBubble);
+          messageContainer.appendChild(avatar);
+          messageContainer.appendChild(messageContent);
+          chatMessages.appendChild(messageContainer);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+          const chatMessages = document.querySelector('.chat-messages');
+          const typingMsg = chatMessages.querySelector('.MessageToMe.typing-indicator-msg');
+          if (typingMsg) typingMsg.remove();
+        }
+
+        // 依次动画显示一组消息（传入消息对象数组）
+        async function showMessagesSequentially(messages) {
+          let cancelled = false;
+          window._cancelSequentialShow = () => {
+            cancelled = true;
+          };
+          for (let i = 0; i < messages.length; i++) {
+            if (cancelled) break;
+            if (messages[i].sender === 'char') {
+              showTypingIndicator();
+              await new Promise(res => setTimeout(res, calculateTypingDelay(messages[i].content)));
+              hideTypingIndicator();
+            }
+            addMessage(messages[i].sender, messages[i].content, 'text', true);
+            await new Promise(res => setTimeout(res, 500));
+          }
+          // 一次性补全剩余消息
+          if (cancelled) {
+            for (let j = 0; j < messages.length; j++) {
+              const msg = messages[j];
+              if (!document.querySelector('.chat-messages').children[j]) {
+                addMessage(msg.sender, msg.content, 'text', false);
+              }
+            }
+          }
+          window._cancelSequentialShow = null;
+        }
+
+        // 发送消息（仅添加用户消息，不生成AI回复）
+        async function handleSendMessage() {
+          const input = document.querySelector('.message-input');
+          const message = input.value.trim();
+          if (!message) return;
+          input.value = '';
+          // 追加用户消息
+          const userLine = `[你]：${message}`;
+          lastRenderedMsgs.push(userLine);
+          renderOneSrMsg(userLine);
+
+          // 写回srmsg
+          const merged = `<srmsg>\n${lastRenderedMsgs.join('\n')}\n</srmsg>`;
+          if (typeof setChatMessages === 'function') {
+            await setChatMessages([{ message_id: getCurrentMessageId(), message: merged }], { refresh: 'none' });
+            console.log('[DEBUG] setChatMessages写回:', merged);
+          }
+        }
+
+        // 获取所有表情包分类的JSON格式数据
+        function getAllStickersInfo() {
+          const categories = stickerMgr.getCategories();
+          const stickersInfo = {};
+          
+          for (const cat of categories) {
+            stickersInfo[cat.name] = cat.stickers.map(sticker => {
+              const info = {
+                name: sticker.name,
+                url: sticker.url
+              };
+              if (sticker.character) {
+                info.character = sticker.character;
+              }
+              return info;
+            });
+          }
+          
+          return JSON.stringify(stickersInfo, null, 2);
+        }
+
+        // 长按生成AI回复
+        async function handleLongPressGenerate() {
+          const input = document.querySelector('.message-input');
+          const message = input.value.trim();
+          if (message) {
+            input.value = '';
+            // 追加用户消息
+            const userLine = `[你]：${message}`;
+            lastRenderedMsgs.push(userLine);
+            await renderOneSrMsg(userLine);
+          }
+          // 生成AI回复 - 发送给AI时转换表情为文字
+          const textMessage = convertStickersToText(message);
+          const textHistory = lastRenderedMsgs.map(line => convertStickersToText(line)).join('\n');
+          const stickersInfo = getAllStickersInfo();
+          let formattedMessage = `发送消息：${textMessage}\n\n[历史消息]\n${textHistory}\n\n[可用表情包]\n${stickersInfo}`;
+          console.log('[DEBUG] 发送消息：', formattedMessage);
+          showTypingIndicator();
+          let aiReply = '';
+          let aiSrMsgs = [];
+          try {
+            aiReply = await generate({ user_input: formattedMessage });
+            hideTypingIndicator();
+            console.log('[DEBUG] AI新消息:', aiReply);
+            aiSrMsgs = extractAllValidSrMsgLines(aiReply);
+          } catch (e) {
+            hideTypingIndicator();
+            //aiSrMsgs = ['[AI]：AI回复失败'];
+            console.log('[DEBUG] AI回复失败');
+          }
+          // 找到真正的新消息起点:在AI回复中搜索历史消息的最后一句,往前对比到AI回复的第一条
+          let newMsgStartIndex = 0;
+          if (lastRenderedMsgs.length > 0) {
+            const lastHistoryMsg = lastRenderedMsgs[lastRenderedMsgs.length - 1];
+            const lastMsgIndexInAI = aiSrMsgs.indexOf(lastHistoryMsg);
+
+            if (lastMsgIndexInAI !== -1) {
+              // 找到了,往前对比到AI回复的第一条(索引0)
+              let allMatch = true;
+              let matchCount = 1; // 最后一条已匹配
+
+              for (
+                let aiIdx = lastMsgIndexInAI - 1, histIdx = lastRenderedMsgs.length - 2;
+                aiIdx >= 0 && histIdx >= 0;
+                aiIdx--, histIdx--
+              ) {
+                if (aiSrMsgs[aiIdx] === lastRenderedMsgs[histIdx]) {
+                  matchCount++;
+                } else {
+                  allMatch = false;
+                  break;
+                }
+              }
+
+              // 检查是否对比到了AI回复的第一条(索引0)
+              if (allMatch && lastMsgIndexInAI - matchCount + 1 === 0) {
+                // 全都对上了,从匹配段后面开始是新消息
+                newMsgStartIndex = lastMsgIndexInAI + 1;
+              }
+              // 如果没对比到第一条,说明不是完整匹配,不去重,从0开始全部保留
+            }
+          }
+
+          // 串行渲染新消息,等待每条消息的typing完成后再渲染下一条
+          for (let i = newMsgStartIndex; i < aiSrMsgs.length; i++) {
+            lastRenderedMsgs.push(aiSrMsgs[i]);
+            await renderOneSrMsg(aiSrMsgs[i]);
+          }
+          // 写回srmsg
+          const merged = `<srmsg>\n${lastRenderedMsgs.join('\n')}\n</srmsg>`;
+          if (typeof setChatMessages === 'function') {
+            await setChatMessages([{ message_id: getCurrentMessageId(), message: merged }], { refresh: 'none' });
+            console.log('[DEBUG] setChatMessages写回:', merged);
+          }
+        }
+
+        // 重roll处理
+        async function handleReroll(userMsgDiv, userMsgContent) {
+          // 找到该用户消息在lastRenderedMsgs中的索引（从后往前找）
+          let userIdx = -1;
+          for (let i = lastRenderedMsgs.length - 1; i >= 0; i--) {
+            if (
+              lastRenderedMsgs[i].startsWith('[你]：') &&
+              lastRenderedMsgs[i].replace(/^\[你\]：/, '') === userMsgContent
+            ) {
+              userIdx = i;
+              break;
+            }
+          }
+          if (userIdx === -1) return;
+          // 删除该用户消息后所有消息
+          let msgDiv = userMsgDiv.nextElementSibling;
+          while (msgDiv) {
+            let next = msgDiv.nextElementSibling;
+            msgDiv.remove();
+            msgDiv = next;
+          }
+          lastRenderedMsgs.splice(userIdx + 1);
+          // 生成AI回复 - 发送给AI时转换表情为文字
+          const textContent = convertStickersToText(userMsgContent);
+          const textHistory = lastRenderedMsgs.map(line => convertStickersToText(line)).join('\n');
+          const stickersInfo = getAllStickersInfo();
+          let formattedMessage = `发送消息：${textContent}\n\n[历史消息]\n${textHistory}\n\n[可用表情包]\n${stickersInfo}`;
+          console.log('[DEBUG] 发送消息reroll：', formattedMessage);
+          showTypingIndicator();
+          let aiReply = '';
+          let aiSrMsgs = [];
+          try {
+            aiReply = await generate({ user_input: formattedMessage });
+            hideTypingIndicator();
+            console.log('[DEBUG] AI新消息:', aiReply);
+            aiSrMsgs = extractAllValidSrMsgLines(aiReply);
+          } catch (e) {
+            hideTypingIndicator();
+            //aiSrMsgs = ['[AI]：AI回复失败'];
+            console.log('[DEBUG] AI回复失败');
+          }
+          // 找到真正的新消息起点:在AI回复中搜索历史消息的最后一句,往前对比到AI回复的第一条
+          let newMsgStartIndex = 0;
+          if (lastRenderedMsgs.length > 0) {
+            const lastHistoryMsg = lastRenderedMsgs[lastRenderedMsgs.length - 1];
+            const lastMsgIndexInAI = aiSrMsgs.indexOf(lastHistoryMsg);
+
+            if (lastMsgIndexInAI !== -1) {
+              let allMatch = true;
+              let matchCount = 1;
+
+              for (
+                let aiIdx = lastMsgIndexInAI - 1, histIdx = lastRenderedMsgs.length - 2;
+                aiIdx >= 0 && histIdx >= 0;
+                aiIdx--, histIdx--
+              ) {
+                if (aiSrMsgs[aiIdx] === lastRenderedMsgs[histIdx]) {
+                  matchCount++;
+                } else {
+                  allMatch = false;
+                  break;
+                }
+              }
+
+              if (allMatch && lastMsgIndexInAI - matchCount + 1 === 0) {
+                newMsgStartIndex = lastMsgIndexInAI + 1;
+              }
+            }
+          }
+
+          let insertPos = userIdx + 1;
+          // 串行渲染新消息,等待每条消息的typing完成后再渲染下一条
+          for (let i = newMsgStartIndex; i < aiSrMsgs.length; i++) {
+            lastRenderedMsgs.splice(insertPos, 0, aiSrMsgs[i]);
+            await renderOneSrMsg(aiSrMsgs[i]);
+            insertPos++;
+          }
+          // 写回srmsg
+          const merged = `<srmsg>\n${lastRenderedMsgs.join('\n')}\n</srmsg>`;
+          if (typeof setChatMessages === 'function') {
+            await setChatMessages([{ message_id: getCurrentMessageId(), message: merged }], { refresh: 'none' });
+            console.log('[DEBUG] reroll setChatMessages写回:', merged);
+          }
+        }
+
+        // 提取AI回复中所有 <srmsg> 块的消息行，按顺序合并，且只保留格式为 [xxx]：内容 的行
+        function extractAllValidSrMsgLines(content) {
+          const tagRegex = /<srmsg>([\s\S]*?)<\/srmsg>/g;
+          let match;
+          let allLines = [];
+          while ((match = tagRegex.exec(content)) !== null) {
+            const blockLines = match[1]
+              .split('\n')
+              .map(line => line.trim())
+              .filter(line => /^\[.+?]：/.test(line));
+            allLines = allLines.concat(blockLines);
+          }
+          return allLines;
+        }
+
+        // 依次动画显示历史消息（仅首次加载）
+        async function animateInitialSrMsgs() {
+          // 获取历史消息
+          const floorId = getCurrentMessageId ? getCurrentMessageId() : 0;
+          const messages = getChatMessages ? getChatMessages(floorId) : [];
+          // 如果没有从params获取到内容，尝试从历史记录获取，但在这里我们主要依靠 params.content
+          // 这里的逻辑稍微调整：如果 rawContent 已经有了，直接解析 rawContent
+          // 因为在远程模式下，rawContent 是通过 regex $1 传递过来的，这包含了当前卡片的所有内容
+          
+          // 如果 rawContent 为空（极少情况），回退到 getChatMessages
+          let msgLines = [];
+          if(rawContent && rawContent.trim()) {
+               msgLines = rawContent.split('\n').filter(line => line.trim());
+          } else {
+               let content = messages[0]?.message || '';
+               msgLines = extractAllValidSrMsgLines(content);
+          }
+          
+          console.log('[DEBUG] 历史消息:', msgLines);
+          // 组装成 {content, sender}
+          const msgObjs = msgLines.map(line => {
+            let sender = 'char';
+            let msgContent = line;
+            if (line.startsWith('[你]：')) {
+              sender = 'user';
+              msgContent = line.replace(/^\[你\]：/, '');
+            } else if (line.startsWith(`[${CHARACTER_CONFIG.char.name}]：`)) {
+              sender = 'char';
+              msgContent = line.replace(new RegExp(`\\[${CHARACTER_CONFIG.char.name}\\][:：]`), '');
+            } else if (line.startsWith('[转账]：') || line.startsWith('[系统消息]：')) {
+              sender = 'system';
+            }
+            return { content: msgContent, sender };
+          });
+          // 清空
+          document.querySelector('.chat-messages').innerHTML = '';
+          await showMessagesSequentially(msgObjs);
+          lastRenderedMsgs = [...msgLines];
+          console.log('[DEBUG] 已渲染历史消息:', lastRenderedMsgs);
+        }
+
+        // Event listeners
+        // 点击界面任意其他地方时，移除所有reroll遮罩
+        document.addEventListener('click', function (e) {
+          document.querySelectorAll('.reroll-overlay').forEach(el => {
+            el.style.opacity = '0';
+            setTimeout(() => el.remove(), 300);
+            console.log('[DEBUG] reroll overlay auto removed');
+          });
+          // 取消历史消息动画
+          if (window._cancelSequentialShow) window._cancelSequentialShow();
+        });
+
+        // 长按相关变量
+        let longPressTimer = null;
+        let isLongPressTriggered = false;
+        const LONG_PRESS_DURATION = 500; // 500毫秒长按
+
+        // 长按开始
+        function startLongPress() {
+          isLongPressTriggered = false;
+          // 添加长按视觉反馈
+          if(sendButton) sendButton.style.opacity = '0.7';
+          longPressTimer = setTimeout(() => {
+            isLongPressTriggered = true;
+            if(sendButton) sendButton.style.opacity = '1';
+            handleLongPressGenerate();
+          }, LONG_PRESS_DURATION);
+        }
+
+        // 长按结束
+        function endLongPress() {
+          if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+          }
+          // 恢复按钮透明度
+          if(sendButton) sendButton.style.opacity = '1';
+        }
+
+        // 发送按钮事件监听
+        if(sendButton) {
+            sendButton.addEventListener('mousedown', startLongPress);
+            sendButton.addEventListener('mouseup', endLongPress);
+            sendButton.addEventListener('mouseleave', endLongPress);
+            sendButton.addEventListener('touchstart', startLongPress);
+            sendButton.addEventListener('touchend', endLongPress);
+            sendButton.addEventListener('touchcancel', endLongPress);
+
+            // 普通点击事件（仅发送用户消息）
+            sendButton.addEventListener('click', e => {
+              // 如果触发了长按，不执行点击
+              if (isLongPressTriggered) {
+                e.preventDefault();
+                return;
+              }
+              handleSendMessage();
+            });
+        }
+        
+        if(input) {
+            input.addEventListener('keypress', e => {
+              if (e.key === 'Enter') {
+                handleSendMessage();
+              }
+            });
+        }
+        
+        // 页面加载后依次动画显示历史消息
+        animateInitialSrMsgs();
+      })();
+    </script>
+    <script>
+      (function () {
+        if (window.parent === window) return; // 自己不是 iframe
+        try {
+          let parentDoc = window.parent.document;
+        } catch (e) {
+          console.warn('跨域限制，无法直接同步父页面样式');
+          return;
+        }
+
+        const parentHtml = window.parent.document.documentElement;
+        const iframeHtml = document.documentElement;
+
+        // 定义同步函数：把父级 html 标签的 style 属性原样复制过来
+        function syncStyles() {
+          const parentStyle = parentHtml.style.cssText;
+
+          // 将其追加或覆盖到 iframe 的 html 标签上
+          iframeHtml.style.cssText += parentStyle;
+        }
+
+        syncStyles();
+
+        // 一旦父页面的 style 属性发生变化，立刻再次触发同步
+        const observer = new MutationObserver(mutations => {
+          mutations.forEach(mutation => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+              syncStyles();
+            }
+          });
+        });
+
+        // 开始监听父级 html 标签
+        observer.observe(parentHtml, {
+          attributes: true, // 监听属性变化
+          attributeFilter: ['style'], // 只监听 style 属性的变化
+        });
+      })();
+    </script>
+  </body>
+</html>
