@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>望息 - 状态栏 (响应式)</title>
+    <title><char> - 状态栏 (响应式)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -354,7 +354,7 @@
         const personality = SafeGetValue(npcData, '性格', []);
         const personalityText = Array.isArray(personality) ? personality.join(', ') : 'N/A';
         contentHTML += createInfoItem('性格', personalityText);
-        const userName = substitudeMacros('{{user}}');
+        const userName = substitudeMacros('<user>');
         contentHTML += createInfoItem(`对${userName}好感度`, SafeGetValue(npcData, `对${userName}好感度`));
         contentHTML += createInfoItem(`与${userName}关系`, SafeGetValue(npcData, `与${userName}关系`));
 
@@ -426,9 +426,9 @@
 
           finalHTML += `<div class="core-status-section">`;
 
-          const awakeningValue = parseFloat(SafeGetValue(statData, '望息.觉醒值', 0));
+          const awakeningValue = parseFloat(SafeGetValue(statData, '<char>.觉醒值', 0));
           const prevAwakeningValue = prevStatData
-            ? parseFloat(SafeGetValue(prevStatData, '望息.觉醒值', awakeningValue))
+            ? parseFloat(SafeGetValue(prevStatData, '<char>.觉醒值', awakeningValue))
             : awakeningValue;
           const awakeningDiff = awakeningValue - prevAwakeningValue;
 
@@ -438,7 +438,7 @@
           }
 
           const awakeningStageName = getAwakeningStage(awakeningValue);
-          const isStageUnlocked = SafeGetValue(statData, `望息.阶段锁.${awakeningStageName}`, false);
+          const isStageUnlocked = SafeGetValue(statData, `<char>.阶段锁.${awakeningStageName}`, false);
           const stageIconSrc = isStageUnlocked
             ? 'https://api.iconify.design/fluent/eye-24-regular.svg?color=%23111827'
             : 'https://api.iconify.design/ph/eye-closed-bold.svg?color=%236b7280';
@@ -459,7 +459,7 @@
                     ${diffText}
                 </div>`;
 
-          const mindset = SafeGetValue(statData, '望息.心态', {});
+          const mindset = SafeGetValue(statData, '<char>.心态', {});
           const pressure = parseInt(SafeGetValue(mindset, '内在压力', 0), 10);
           const acceptance = parseInt(SafeGetValue(mindset, '外部接纳', 0), 10);
           finalHTML += `
@@ -486,16 +486,16 @@
 
           finalHTML += `</div>`;
 
-          const userNameForGroup = substitudeMacros('{{user}}');
+          const userNameForGroup = substitudeMacros('<user>');
           const userPosture = SafeGetValue(statData, `${userNameForGroup}.姿势`, '无');
           let userPostureHTML = createInfoItem('姿势', userPosture);
           let userClothingHTML = buildClothingInfo(SafeGetValue(statData, `${userNameForGroup}.衣着`, {}));
           finalHTML += createGenericGroup(userNameForGroup, userPostureHTML + userClothingHTML);
 
-          const mochiPosture = SafeGetValue(statData, '望息.姿势', '无');
+          const mochiPosture = SafeGetValue(statData, '<char>.姿势', '无');
           let mochiPostureHTML = createInfoItem('姿势', mochiPosture);
-          let mainCharacterClothingHTML = buildClothingInfo(SafeGetValue(statData, '望息.衣着', {}));
-          finalHTML += createGenericGroup('望息', mochiPostureHTML + mainCharacterClothingHTML);
+          let mainCharacterClothingHTML = buildClothingInfo(SafeGetValue(statData, '<char>.衣着', {}));
+          finalHTML += createGenericGroup('<char>', mochiPostureHTML + mainCharacterClothingHTML);
 
           const npcs = SafeGetValue(statData, 'NPCs', {});
           const activeNpcs = Object.keys(npcs).filter(
