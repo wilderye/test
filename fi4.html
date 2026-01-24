@@ -1,5 +1,7 @@
+<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
+    <meta charset="UTF-8" />
     <style>
       @import url('https://fontsapi.zeoseven.com/256/main/result.css');
 
@@ -7,10 +9,8 @@
         font-family: 'Huiwen-mincho';
         font-weight: normal;
       }
-      /* CSS变量将通过JS动态设置 */
       :root {
-        --fire-scale: 0.5;
-        --qqflins-image: url();
+        /* CSS 变量将由 JS 动态设置 */
       }
       body {
         display: flex;
@@ -20,9 +20,7 @@
       }
 
       .lamp-wrapper {
-        transition:
-          transform 0.3s ease,
-          opacity 0.3s ease;
+        transition: transform 0.3s ease, opacity 0.3s ease;
         pointer-events: none;
       }
 
@@ -57,22 +55,14 @@
         width: 100%;
         height: 100%;
         transform-origin: bottom center;
-        animation:
-          lamp-sway-horizontal 4s ease-in-out infinite,
-          lamp-sway-vertical 2.5s ease-in-out infinite;
+        animation: lamp-sway-horizontal 4s ease-in-out infinite, lamp-sway-vertical 2.5s ease-in-out infinite;
         pointer-events: none;
       }
 
       .lamp-wrapper.shrunk .lamp-animation {
-        animation:
-          lamp-sway-horizontal-shrunk 4s ease-in-out infinite,
+        animation: lamp-sway-horizontal-shrunk 4s ease-in-out infinite,
           lamp-sway-vertical-shrunk 2.5s ease-in-out infinite;
       }
-
-      /* .lamp-wrapper.shrunk:hover .lamp-animation {
-        animation: lamp-sway-horizontal-shrunk-hover 4s ease-in-out infinite,
-          lamp-sway-vertical-shrunk-hover 2.5s ease-in-out infinite;
-      } */
       .fire-container {
         position: absolute;
         left: 50%;
@@ -104,9 +94,7 @@
         filter: blur(40px);
         z-index: -1;
         pointer-events: none;
-        transition:
-          opacity 0.3s ease,
-          visibility 0.3s ease;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
       }
 
       .lamp-bg.hide {
@@ -122,13 +110,8 @@
         height: 120px;
         background: linear-gradient(to top, #1e90ff 0%, #4169e1 40%, #4a0dad 70%, #5034f147 100%);
         border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-        animation:
-          flicker 0.3s ease-in-out infinite alternate,
-          sway 2s ease-in-out infinite;
-        box-shadow:
-          0 0 30px #4169e1,
-          0 0 50px #520dad,
-          0 0 70px #5100ff;
+        animation: flicker 0.3s ease-in-out infinite alternate, sway 2s ease-in-out infinite;
+        box-shadow: 0 0 30px #4169e1, 0 0 50px #520dad, 0 0 70px #5100ff;
         filter: blur(8px);
       }
 
@@ -297,9 +280,7 @@
         transform: translate(-50%, -50%);
         opacity: 0;
         visibility: hidden;
-        transition:
-          opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1),
-          visibility 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.5s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 1;
       }
 
@@ -360,9 +341,7 @@
         font-family: 'Huiwen-mincho', sans-serif;
         font-size: 14px;
         color: rgb(89, 244, 254);
-        text-shadow:
-          0 0 8px rgba(71, 86, 186, 0.9),
-          0 0 12px rgba(44, 48, 122, 0.6);
+        text-shadow: 0 0 8px rgba(71, 86, 186, 0.9), 0 0 12px rgba(44, 48, 122, 0.6);
         font-weight: 500;
         animation: statusTwinkle var(--twinkle-duration) ease-in-out infinite;
         animation-delay: calc(var(--twinkle-delay) + 0.2s);
@@ -380,9 +359,7 @@
         font-family: 'Huiwen-mincho', sans-serif;
         font-size: 13px;
         color: #f0f0f0;
-        text-shadow:
-          0 0 6px rgba(71, 86, 186, 0.9),
-          0 0 10px rgba(44, 48, 122, 0.6);
+        text-shadow: 0 0 6px rgba(71, 86, 186, 0.9), 0 0 10px rgba(44, 48, 122, 0.6);
         line-height: 1.4;
         width: 80%;
         animation: statusTwinkle var(--twinkle-duration) ease-in-out infinite;
@@ -411,7 +388,6 @@
         transform-style: preserve-3d;
         overflow: visible;
       }
-      /* 3D 透视用可组合变换（不影响原有缩放/动画） */
       .lamp-wrapper {
         --lx: 0px;
         --ly: 0px;
@@ -444,7 +420,6 @@
           rotateY(var(--bry));
         will-change: transform;
       }
-      /* 心情符号气泡样式 */
       .mood-container {
         position: relative;
         display: flex;
@@ -464,9 +439,7 @@
         color: #f0f0f0;
         text-shadow: 0 0 8px rgba(89, 244, 254, 0.9);
         box-shadow: 0 0 15px rgba(71, 86, 186, 0.4);
-        animation:
-          bubbleFloat 3s ease-in-out infinite,
-          statusTwinkle 4s ease-in-out infinite;
+        animation: bubbleFloat 3s ease-in-out infinite, statusTwinkle 4s ease-in-out infinite;
         white-space: nowrap;
         max-width: 100px;
       }
@@ -543,29 +516,23 @@
         gap: 16px;
         align-self: flex-end;
         z-index: 98;
-        scrollbar-width: none; /* Firefox */
-        -ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
         scroll-behavior: smooth;
         perspective: 1000px;
         transform-style: preserve-3d;
         -webkit-mask-image: linear-gradient(
           to bottom,
           transparent 0%,
-          /* 顶部完全透明 */ black 10px,
-          /* 经过 px 过渡到完全不透明 */ black calc(100% - 10px),
-          /* 底部向上 px 处保持完全不透明 */ transparent 100%
-        );
-        mask-image: linear-gradient(
-          to bottom,
-          transparent 0,
-          /* 顶部完全透明 */ black 10px,
-          /* 经过 px 过渡到完全不透明 */ black calc(100% - 10px),
+          black 10px,
+          black calc(100% - 10px),
           transparent 100%
         );
+        mask-image: linear-gradient(to bottom, transparent 0, black 10px, black calc(100% - 10px), transparent 100%);
       }
 
       .status-contents::-webkit-scrollbar {
-        display: none; /* Chrome, Safari, Opera */
+        display: none;
       }
 
       .status-item {
@@ -579,27 +546,19 @@
       @keyframes statusTwinkle {
         0% {
           opacity: 0.82;
-          text-shadow:
-            0 0 4px rgba(71, 86, 186, 0.6),
-            0 0 8px rgba(44, 48, 122, 0.4);
+          text-shadow: 0 0 4px rgba(71, 86, 186, 0.6), 0 0 8px rgba(44, 48, 122, 0.4);
         }
         40% {
           opacity: 1;
-          text-shadow:
-            0 0 10px rgba(89, 244, 254, 0.9),
-            0 0 16px rgba(44, 48, 122, 0.7);
+          text-shadow: 0 0 10px rgba(89, 244, 254, 0.9), 0 0 16px rgba(44, 48, 122, 0.7);
         }
         60% {
           opacity: 0.9;
-          text-shadow:
-            0 0 6px rgba(71, 86, 186, 0.7),
-            0 0 12px rgba(44, 48, 122, 0.5);
+          text-shadow: 0 0 6px rgba(71, 86, 186, 0.7), 0 0 12px rgba(44, 48, 122, 0.5);
         }
         100% {
           opacity: 0.85;
-          text-shadow:
-            0 0 5px rgba(71, 86, 186, 0.55),
-            0 0 9px rgba(44, 48, 122, 0.35);
+          text-shadow: 0 0 5px rgba(71, 86, 186, 0.55), 0 0 9px rgba(44, 48, 122, 0.35);
         }
       }
       .status-item:nth-child(1) {
@@ -694,11 +653,11 @@
           </div>
           <div class="status-item">
             <div class="status-title">外在人格</div>
-            <div class="status-content" id="status-outer-personality"></div>
+            <div class="status-content" id="status-persona-outer"></div>
           </div>
           <div class="status-item">
             <div class="status-title">内在人格</div>
-            <div class="status-content" id="status-inner-personality"></div>
+            <div class="status-content" id="status-persona-inner"></div>
           </div>
           <div class="status-item">
             <div class="status-title">私欲</div>
@@ -710,209 +669,53 @@
           </div>
           <div class="status-item">
             <div class="status-title">衣着</div>
-            <div class="status-content" id="status-clothing"></div>
+            <div class="status-content" id="status-attire"></div>
           </div>
           <div class="status-item">
             <div class="status-title">想法</div>
             <div class="status-content" id="status-thought"></div>
           </div>
           <div class="mood-container">
-            <div class="mood-bubble" id="status-mood"></div>
+            <div class="mood-bubble" id="status-mood-symbol"></div>
             <div class="qqflins"></div>
           </div>
         </div>
       </div>
     </div>
     <script>
-      // 获取聊天变量
-      const variables = getVariables({ type: 'message', message_id: getCurrentMessageId() });
-      const flinsData = variables.stat_data?.菲林斯 || {};
-
-      // 设置 CSS 变量
-      document.documentElement.style.setProperty('--fire-scale', `calc(${flinsData.好感度 || 0}/100)`);
-      document.documentElement.style.setProperty('--qqflins-image', `url(${flinsData.心情图片 || ''})`);
-
-      // 填充数据到 HTML 元素
-      document.getElementById('favorability-trend').textContent = flinsData.好感趋势 || '';
-      document.getElementById('status-relation').textContent = flinsData.当前关系 || '';
-      document.getElementById('status-time').textContent = flinsData.状态?.时间 || '';
-      document.getElementById('status-location').textContent = flinsData.状态?.位置 || '';
-      document.getElementById('status-outer-personality').textContent = flinsData.心理?.外在人格 || '';
-      document.getElementById('status-inner-personality').textContent = flinsData.心理?.内在人格 || '';
-      document.getElementById('status-desire').textContent = flinsData.心理?.私欲 || '';
-      document.getElementById('status-posture').textContent = flinsData.状态?.姿态 || '';
-      document.getElementById('status-clothing').textContent = flinsData.状态?.衣着 || '';
-      document.getElementById('status-thought').textContent = flinsData.心理?.想法 || '';
-      document.getElementById('status-mood').textContent = flinsData.状态?.心情符号 || '';
-
-      // 存储好感度值供后续使用
-      window._favorabilityValue = Number(flinsData.好感度) || 0;
-
-      const lampWrapper = document.querySelector('.lamp-wrapper');
-      const lampContainer = document.querySelector('.lamp-container');
-      const statusPanel = document.querySelector('.status-panel');
-      const statusBg = document.querySelector('.status-bg');
-      const lampBg = document.querySelector('.lamp-bg');
-      let isShrunk = false;
-
-      lampContainer.addEventListener('click', function () {
-        if (!isShrunk) {
-          // 同时缩小灯和显示面板
-          lampWrapper.classList.add('shrunk');
-          lampBg.classList.add('hide');
-          setTimeout(() => {
-            statusPanel.classList.add('show');
-          }, 500);
-          statusBg.classList.add('show');
-          isShrunk = true;
-        } else {
-          // 同时收起面板和恢复灯
-          statusPanel.classList.remove('show');
-          setTimeout(() => {
-            statusBg.classList.remove('show');
-          }, 500);
-          lampWrapper.classList.remove('shrunk');
-          lampBg.classList.remove('hide');
-          isShrunk = false;
-        }
-      });
-      // 3D 立体透视交互
+      // 确保所有代码在加载后立即执行
       (function () {
-        const container = document.querySelector('.status-container');
-        const lampLayer = document.querySelector('.lamp-wrapper');
-        const panelLayer = document.querySelector('.status-panel');
-        const bgLayer = document.querySelector('.status-bg');
-        if (!container || !lampLayer || !panelLayer || !bgLayer) return;
-        let rafId = null;
-        let target = { x: 0, y: 0 };
-        let current = { x: 0, y: 0 };
-        const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
-        const lerp = (a, b, t) => a + (b - a) * t;
-        function onMove(e) {
-          const rect = container.getBoundingClientRect();
-          const cx = rect.left + rect.width / 2;
-          const cy = rect.top + rect.height / 2;
-          const dx = (e.clientX - cx) / rect.width; // -0.5..0.5
-          const dy = (e.clientY - cy) / rect.height; // -0.5..0.5
-          target.x = clamp(dx * 2, -1, 1);
-          target.y = clamp(dy * 2, -1, 1);
-          if (!rafId) rafId = requestAnimationFrame(update);
-        }
-        function onLeave() {
-          target.x = 0;
-          target.y = 0;
-          if (!rafId) rafId = requestAnimationFrame(update);
-        }
-        function update() {
-          current.x = lerp(current.x, target.x, 0.12);
-          current.y = lerp(current.y, target.y, 0.12);
-          // 前景（灯）强，中文字中等，背景弱
-          // 灯层
-          lampLayer.style.setProperty('--lx', `${current.x * 12}px`);
-          lampLayer.style.setProperty('--ly', `${current.y * 10}px`);
-          lampLayer.style.setProperty('--lz', `60px`);
-          lampLayer.style.setProperty('--lry', `${current.x * 10}deg`);
-          lampLayer.style.setProperty('--lrx', `${-current.y * 8}deg`);
-          // 文字层
-          panelLayer.style.setProperty('--px', `${current.x * 7}px`);
-          panelLayer.style.setProperty('--py', `${current.y * 6}px`);
-          panelLayer.style.setProperty('--pz', `30px`);
-          panelLayer.style.setProperty('--pry', `${current.x * 6}deg`);
-          panelLayer.style.setProperty('--prx', `${-current.y * 4}deg`);
-          // 背景层（更远，幅度更小，稍微反向或同向均可，这里选同向更自然）
-          bgLayer.style.setProperty('--bx', `${current.x * 3}px`);
-          bgLayer.style.setProperty('--by', `${current.y * 2}px`);
-          bgLayer.style.setProperty('--bz', `-60px`);
-          bgLayer.style.setProperty('--bry', `${current.x * 3}deg`);
-          bgLayer.style.setProperty('--brx', `${-current.y * 2}deg`);
-          if (Math.abs(current.x - target.x) > 0.001 || Math.abs(current.y - target.y) > 0.001) {
-            rafId = requestAnimationFrame(update);
-          } else {
-            rafId = null;
-          }
-        }
-        container.addEventListener('mousemove', onMove);
-        container.addEventListener('mouseleave', onLeave);
-      })();
+        // --- 核心数据处理 ---
+        function populateData() {
+          const variables = getVariables({ type: 'message', message_id: getCurrentMessageId() });
+          const charData = variables.stat_data?.菲林斯 || {};
+          const stateData = charData.状态 || {};
+          const psychologyData = charData.心理 || {};
 
-      // 滚动球面效果
-      (function () {
-        const container = document.querySelector('.status-contents');
-        if (!container) return;
+          // 动态设置 CSS 变量
+          const favorabilityValue = charData.好感度 || 0;
+          document.documentElement.style.setProperty('--fire-scale', `calc(${favorabilityValue}/100)`);
+          document.documentElement.style.setProperty('--qqflins-image', `url(${stateData.心情图片 || ''})`);
 
-        function updateItemsScale() {
-          const items = container.querySelectorAll('.status-item');
-          const containerRect = container.getBoundingClientRect();
-          const centerY = containerRect.top + containerRect.height / 2;
-
-          items.forEach(item => {
-            const itemRect = item.getBoundingClientRect();
-            const itemCenterY = itemRect.top + itemRect.height / 2;
-            const distanceY = itemCenterY - centerY;
-            const maxDistance = containerRect.height / 2;
-
-            // 归一化距离 -1 到 1
-            const normalizedDistance = distanceY / maxDistance;
-
-            // 计算缩放比例：中心为1.2，边缘为0.85
-            const absDistance = Math.abs(normalizedDistance);
-            const scale = Math.max(0.85, 1.2 - absDistance * 0.35);
-
-            // 计算透明度：中心为1，边缘为0.5
-            const opacity = Math.max(0.5, 1 - absDistance * 0.5);
-
-            // 计算球面弧度：上方向上弯，下方向下弯
-            const rotateX = normalizedDistance * -25; // 最大旋转25度
-
-            // 计算Z轴位移，制造球面深度效果
-            const translateZ = -Math.abs(normalizedDistance) * 30; // 边缘向后退30px
-
-            // 组合变换
-            item.style.transform = `
-              perspective(800px)
-              translateZ(${translateZ}px)
-              rotateX(${rotateX}deg)
-              scale(${scale})
-            `;
-            item.style.opacity = opacity;
-          });
+          // 填充 HTML 内容
+          document.getElementById('favorability-trend').textContent = charData.好感趋势 || '';
+          document.getElementById('status-relation').textContent = charData.当前关系 || '';
+          document.getElementById('status-time').textContent = stateData.时间 || '';
+          document.getElementById('status-location').textContent = stateData.位置 || '';
+          document.getElementById('status-persona-outer').textContent = psychologyData.外在人格 || '';
+          document.getElementById('status-persona-inner').textContent = psychologyData.内在人格 || '';
+          document.getElementById('status-desire').textContent = psychologyData.私欲 || '';
+          document.getElementById('status-posture').textContent = stateData.姿态 || '';
+          document.getElementById('status-attire').textContent = stateData.衣着 || '';
+          document.getElementById('status-thought').textContent = psychologyData.想法 || '';
+          document.getElementById('status-mood-symbol').textContent = stateData.心情符号 || '';
+          
+          // 初始化好感度文本切换功能
+          setupFavorabilityToggle(favorabilityValue);
         }
 
-        // 监听滚动事件
-        container.addEventListener('scroll', updateItemsScale);
-
-        // 初始更新
-        updateItemsScale();
-
-        // 面板显示时也更新
-        const observer = new MutationObserver(mutations => {
-          mutations.forEach(mutation => {
-            if (mutation.attributeName === 'class') {
-              const panel = mutation.target;
-              if (panel.classList.contains('show')) {
-                setTimeout(updateItemsScale, 100);
-              }
-            }
-          });
-        });
-
-        const statusPanel = document.querySelector('.status-panel');
-        if (statusPanel) {
-          observer.observe(statusPanel, { attributes: true });
-        }
-      })();
-
-      // 好感度文本切换功能
-      (function () {
-        const favorabilityDisplay = document.getElementById('favorability-display');
-        const favorabilityText = document.getElementById('favorability-text');
-
-        // 使用已获取的好感度数值
-        const favorabilityValue = window._favorabilityValue || 0;
-
-        let showingText = true;
-
-        // 根据数值返回对应文本
+        // --- 好感度文本切换功能 ---
+        let isFavorabilityShowingText = true;
         function getFavorabilityText(value) {
           if (value < 20) return '初行邂逅';
           if (value < 40) return '幽火微明';
@@ -921,18 +724,151 @@
           return '苍焰为契';
         }
 
-        // 设置初始显示为文本
-        favorabilityText.textContent = getFavorabilityText(favorabilityValue);
+        function setupFavorabilityToggle(favorabilityValue) {
+            const favorabilityDisplay = document.getElementById('favorability-display');
+            const favorabilityTextEl = document.getElementById('favorability-text');
+            
+            // 设置初始显示为文本
+            favorabilityTextEl.textContent = getFavorabilityText(favorabilityValue);
 
-        // 点击切换
-        favorabilityDisplay.addEventListener('click', function (e) {
-          if (showingText) {
-            favorabilityText.textContent = '　　　' + favorabilityValue.toString();
+            // 点击切换 (移除旧监听器以防重复添加)
+            favorabilityDisplay.replaceWith(favorabilityDisplay.cloneNode(true));
+            document.getElementById('favorability-display').addEventListener('click', function () {
+                if (isFavorabilityShowingText) {
+                    favorabilityTextEl.textContent = '　　　' + favorabilityValue.toString();
+                } else {
+                    favorabilityTextEl.textContent = getFavorabilityText(favorabilityValue);
+                }
+                isFavorabilityShowingText = !isFavorabilityShowingText;
+            });
+        }
+
+        // --- UI 交互与动画 ---
+        const lampWrapper = document.querySelector('.lamp-wrapper');
+        const lampContainer = document.querySelector('.lamp-container');
+        const statusPanel = document.querySelector('.status-panel');
+        const statusBg = document.querySelector('.status-bg');
+        const lampBg = document.querySelector('.lamp-bg');
+        let isShrunk = false;
+
+        lampContainer.addEventListener('click', function () {
+          if (!isShrunk) {
+            lampWrapper.classList.add('shrunk');
+            lampBg.classList.add('hide');
+            setTimeout(() => {
+              statusPanel.classList.add('show');
+            }, 500);
+            statusBg.classList.add('show');
+            isShrunk = true;
           } else {
-            favorabilityText.textContent = getFavorabilityText(favorabilityValue);
+            statusPanel.classList.remove('show');
+            setTimeout(() => {
+              statusBg.classList.remove('show');
+            }, 500);
+            lampWrapper.classList.remove('shrunk');
+            lampBg.classList.remove('hide');
+            isShrunk = false;
           }
-          showingText = !showingText;
         });
+
+        // 3D 立体透视交互
+        (function () {
+          const container = document.querySelector('.status-container');
+          const lampLayer = document.querySelector('.lamp-wrapper');
+          const panelLayer = document.querySelector('.status-panel');
+          const bgLayer = document.querySelector('.status-bg');
+          if (!container || !lampLayer || !panelLayer || !bgLayer) return;
+          let rafId = null;
+          let target = { x: 0, y: 0 };
+          let current = { x: 0, y: 0 };
+          const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+          const lerp = (a, b, t) => a + (b - a) * t;
+          function onMove(e) {
+            const rect = container.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            const dx = (e.clientX - cx) / rect.width;
+            const dy = (e.clientY - cy) / rect.height;
+            target.x = clamp(dx * 2, -1, 1);
+            target.y = clamp(dy * 2, -1, 1);
+            if (!rafId) rafId = requestAnimationFrame(update);
+          }
+          function onLeave() {
+            target.x = 0;
+            target.y = 0;
+            if (!rafId) rafId = requestAnimationFrame(update);
+          }
+          function update() {
+            current.x = lerp(current.x, target.x, 0.12);
+            current.y = lerp(current.y, target.y, 0.12);
+            lampLayer.style.setProperty('--lx', `${current.x * 12}px`);
+            lampLayer.style.setProperty('--ly', `${current.y * 10}px`);
+            lampLayer.style.setProperty('--lz', `60px`);
+            lampLayer.style.setProperty('--lry', `${current.x * 10}deg`);
+            lampLayer.style.setProperty('--lrx', `${-current.y * 8}deg`);
+            panelLayer.style.setProperty('--px', `${current.x * 7}px`);
+            panelLayer.style.setProperty('--py', `${current.y * 6}px`);
+            panelLayer.style.setProperty('--pz', `30px`);
+            panelLayer.style.setProperty('--pry', `${current.x * 6}deg`);
+            panelLayer.style.setProperty('--prx', `${-current.y * 4}deg`);
+            bgLayer.style.setProperty('--bx', `${current.x * 3}px`);
+            bgLayer.style.setProperty('--by', `${current.y * 2}px`);
+            bgLayer.style.setProperty('--bz', `-60px`);
+            bgLayer.style.setProperty('--bry', `${current.x * 3}deg`);
+            bgLayer.style.setProperty('--brx', `${-current.y * 2}deg`);
+            if (Math.abs(current.x - target.x) > 0.001 || Math.abs(current.y - target.y) > 0.001) {
+              rafId = requestAnimationFrame(update);
+            } else {
+              rafId = null;
+            }
+          }
+          container.addEventListener('mousemove', onMove);
+          container.addEventListener('mouseleave', onLeave);
+        })();
+
+        // 滚动球面效果
+        (function () {
+          const container = document.querySelector('.status-contents');
+          if (!container) return;
+          function updateItemsScale() {
+            const items = container.querySelectorAll('.status-item');
+            const containerRect = container.getBoundingClientRect();
+            const centerY = containerRect.top + containerRect.height / 2;
+            items.forEach(item => {
+              const itemRect = item.getBoundingClientRect();
+              const itemCenterY = itemRect.top + itemRect.height / 2;
+              const distanceY = itemCenterY - centerY;
+              const maxDistance = containerRect.height / 2;
+              const normalizedDistance = distanceY / maxDistance;
+              const absDistance = Math.abs(normalizedDistance);
+              const scale = Math.max(0.85, 1.2 - absDistance * 0.35);
+              const opacity = Math.max(0.5, 1 - absDistance * 0.5);
+              const rotateX = normalizedDistance * -25;
+              const translateZ = -Math.abs(normalizedDistance) * 30;
+              item.style.transform = `perspective(800px) translateZ(${translateZ}px) rotateX(${rotateX}deg) scale(${scale})`;
+              item.style.opacity = opacity;
+            });
+          }
+          container.addEventListener('scroll', updateItemsScale);
+          const observer = new MutationObserver(mutations => {
+            mutations.forEach(mutation => {
+              if (mutation.attributeName === 'class') {
+                const panel = mutation.target;
+                if (panel.classList.contains('show')) {
+                  setTimeout(updateItemsScale, 100);
+                }
+              }
+            });
+          });
+          const statusPanelEl = document.querySelector('.status-panel');
+          if (statusPanelEl) {
+            observer.observe(statusPanelEl, { attributes: true });
+          }
+        })();
+
+        // --- 初始化 ---
+        populateData();
+
       })();
     </script>
   </body>
