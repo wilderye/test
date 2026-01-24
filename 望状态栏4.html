@@ -426,9 +426,10 @@
 
           finalHTML += `<div class="core-status-section">`;
 
-          const awakeningValue = parseFloat(SafeGetValue(statData, '<char>.觉醒值', 0));
+          const charName = substitudeMacros('<char>');
+          const awakeningValue = parseFloat(SafeGetValue(statData, `${charName}.觉醒值`, 0));
           const prevAwakeningValue = prevStatData
-            ? parseFloat(SafeGetValue(prevStatData, '<char>.觉醒值', awakeningValue))
+            ? parseFloat(SafeGetValue(prevStatData, `${charName}.觉醒值`, awakeningValue))
             : awakeningValue;
           const awakeningDiff = awakeningValue - prevAwakeningValue;
 
@@ -438,7 +439,7 @@
           }
 
           const awakeningStageName = getAwakeningStage(awakeningValue);
-          const isStageUnlocked = SafeGetValue(statData, `<char>.阶段锁.${awakeningStageName}`, false);
+          const isStageUnlocked = SafeGetValue(statData, `${charName}.阶段锁.${awakeningStageName}`, false);
           const stageIconSrc = isStageUnlocked
             ? 'https://api.iconify.design/fluent/eye-24-regular.svg?color=%23111827'
             : 'https://api.iconify.design/ph/eye-closed-bold.svg?color=%236b7280';
@@ -459,7 +460,7 @@
                     ${diffText}
                 </div>`;
 
-          const mindset = SafeGetValue(statData, '<char>.心态', {});
+          const mindset = SafeGetValue(statData, `${charName}.心态`, {});
           const pressure = parseInt(SafeGetValue(mindset, '内在压力', 0), 10);
           const acceptance = parseInt(SafeGetValue(mindset, '外部接纳', 0), 10);
           finalHTML += `
@@ -492,10 +493,10 @@
           let userClothingHTML = buildClothingInfo(SafeGetValue(statData, `${userNameForGroup}.衣着`, {}));
           finalHTML += createGenericGroup(userNameForGroup, userPostureHTML + userClothingHTML);
 
-          const mochiPosture = SafeGetValue(statData, '<char>.姿势', '无');
+          const mochiPosture = SafeGetValue(statData, `${charName}.姿势`, '无');
           let mochiPostureHTML = createInfoItem('姿势', mochiPosture);
-          let mainCharacterClothingHTML = buildClothingInfo(SafeGetValue(statData, '<char>.衣着', {}));
-          finalHTML += createGenericGroup('<char>', mochiPostureHTML + mainCharacterClothingHTML);
+          let mainCharacterClothingHTML = buildClothingInfo(SafeGetValue(statData, `${charName}.衣着`, {}));
+          finalHTML += createGenericGroup(charName, mochiPostureHTML + mainCharacterClothingHTML);
 
           const npcs = SafeGetValue(statData, 'NPCs', {});
           const activeNpcs = Object.keys(npcs).filter(
