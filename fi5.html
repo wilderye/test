@@ -695,7 +695,9 @@
           // 动态设置 CSS 变量
           const favorabilityValue = charData.好感度 || 0;
           document.documentElement.style.setProperty('--fire-scale', `calc(${favorabilityValue}/100)`);
-          document.documentElement.style.setProperty('--qqflins-image', `url(${stateData.心情图片 || ''})`);
+          
+          // 【已修正】直接从 charData 获取 心情图片
+          document.documentElement.style.setProperty('--qqflins-image', `url(${charData.心情图片 || ''})`);
 
           // 填充 HTML 内容
           document.getElementById('favorability-trend').textContent = charData.好感趋势 || '';
@@ -729,15 +731,20 @@
             const favorabilityTextEl = document.getElementById('favorability-text');
             
             // 设置初始显示为文本
-            favorabilityTextEl.textContent = getFavorabilityText(favorabilityValue);
+            if (favorabilityTextEl) {
+              favorabilityTextEl.textContent = getFavorabilityText(favorabilityValue);
+            }
 
             // 点击切换 (移除旧监听器以防重复添加)
-            favorabilityDisplay.replaceWith(favorabilityDisplay.cloneNode(true));
-            document.getElementById('favorability-display').addEventListener('click', function () {
+            const newFavorabilityDisplay = favorabilityDisplay.cloneNode(true);
+            favorabilityDisplay.parentNode.replaceChild(newFavorabilityDisplay, favorabilityDisplay);
+
+            newFavorabilityDisplay.addEventListener('click', function () {
+                const updatedTextEl = document.getElementById('favorability-text');
                 if (isFavorabilityShowingText) {
-                    favorabilityTextEl.textContent = '　　　' + favorabilityValue.toString();
+                    updatedTextEl.textContent = '　　　' + favorabilityValue.toString();
                 } else {
-                    favorabilityTextEl.textContent = getFavorabilityText(favorabilityValue);
+                    updatedTextEl.textContent = getFavorabilityText(favorabilityValue);
                 }
                 isFavorabilityShowingText = !isFavorabilityShowingText;
             });
